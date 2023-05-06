@@ -444,7 +444,7 @@ index 0680389..464c414 100644
 +	//file_descriptors.fd = 0; /* this is STDIN */
 +	//file_descriptors.events = POLLIN;
 +	//bool standard_input = poll(& file_descriptors, 1, 0) == 1;
-+	bool standard_input = 1;
++	bool standard_input = 0;
 +
  	// Check program input
  	if ((standard_input && (argc < 1 || argc > 2)) || (!standard_input && (argc < 2 || argc > 3))) {
