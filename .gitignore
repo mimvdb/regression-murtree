@@ -1,2 +1,4 @@
 experiments/data
 experiments/prof.txt
+build/**
+!.gitkeep
