@@ -8,6 +8,7 @@ This repository contains scripts to run experiments comparing the runtime of reg
 
 # Limitations compared to other approaches
 - OSRT can directly optimize for an objective without a depth constraint
+- OSRT will crash if regularization factor is set to 0
 - ...
 
 # Running experiments

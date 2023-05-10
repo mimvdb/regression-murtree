@@ -1,0 +1,180 @@
+[
+    {
+        "dataset": "airfoil.csv",
+        "results": [
+            {
+                "depth": 2,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.917425,
+                        "complexity": 0.01,
+                        "time": 0.007
+                    },
+                    "streed": {
+                        "time": 0.003
+                    }
+                }
+            },
+            {
+                "depth": 3,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.843082,
+                        "complexity": 0.02,
+                        "time": 0.033
+                    },
+                    "streed": {
+                        "time": 0.003
+                    }
+                }
+            },
+            {
+                "depth": 4,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.788801,
+                        "complexity": 0.035,
+                        "time": 0.146
+                    },
+                    "streed": {
+                        "time": 0.004
+                    }
+                }
+            },
+            {
+                "depth": 5,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.724072,
+                        "complexity": 0.055,
+                        "time": 0.658
+                    },
+                    "streed": {
+                        "time": 0.004
+                    }
+                }
+            },
+            {
+                "depth": 6,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.620353,
+                        "complexity": 0.09,
+                        "time": 2.614
+                    },
+                    "streed": {
+                        "time": 0.003
+                    }
+                }
+            },
+            {
+                "depth": 7,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 267.362,
+                        "loss": 0.56963,
+                        "complexity": 0.12,
+                        "time": 8.695
+                    },
+                    "streed": {
+                        "time": 0.005
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "dataset": "airquality.csv",
+        "results": [
+            {
+                "depth": 2,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.620909,
+                        "complexity": 0.01,
+                        "time": 0.003
+                    },
+                    "streed": {
+                        "time": 0.001
+                    }
+                }
+            },
+            {
+                "depth": 3,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.357764,
+                        "complexity": 0.02,
+                        "time": 0.014
+                    },
+                    "streed": {
+                        "time": 0.001
+                    }
+                }
+            },
+            {
+                "depth": 4,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.233641,
+                        "complexity": 0.035,
+                        "time": 0.058
+                    },
+                    "streed": {
+                        "time": 0.002
+                    }
+                }
+            },
+            {
+                "depth": 5,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.163339,
+                        "complexity": 0.06,
+                        "time": 0.609
+                    },
+                    "streed": {
+                        "time": 0.001
+                    }
+                }
+            },
+            {
+                "depth": 6,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.104779,
+                        "complexity": 0.075,
+                        "time": 5.15
+                    },
+                    "streed": {
+                        "time": 0.001
+                    }
+                }
+            },
+            {
+                "depth": 7,
+                "experiment": {
+                    "osrt": {
+                        "loss_normalizer": 349.001,
+                        "loss": 0.0936658,
+                        "complexity": 0.08,
+                        "time": 22.133
+                    },
+                    "streed": {
+                        "time": 0.001
+                    }
+                }
+            }
+        ]
+    }
+]

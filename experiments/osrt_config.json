@@ -11,7 +11,7 @@
     "diagnostics": true,
     "verbose": true,
   
-    "regularization": 0,
+    "regularization": 0.005,
     "uncertainty_tolerance": 0.0,
     "upperbound": 0.0,
     "depth_budget": 6,
