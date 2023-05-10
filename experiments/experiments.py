@@ -33,7 +33,9 @@ def run_osrt(dataset, depth, timeout=30.0):
     msys_env = os.environ.copy()
     msys_env["PATH"] = "C:\\msys64\\ucrt64\\bin\\;" + msys_env["PATH"]
     try:
-        result = subprocess.check_output(["../../optimal-sparse-regression-tree-public/gosdt", csv_path, "./osrt_config.tmp.json"], env=msys_env, timeout=timeout)
+        result = subprocess.check_output(
+            ["../../optimal-sparse-regression-tree-public/gosdt",
+             csv_path, "./osrt_config.tmp.json"], env=msys_env, timeout=timeout)
         output = result.decode()
         parsed = parse_output(output)
         parsed["stdout"] = output
@@ -60,8 +62,13 @@ def run_streed(dataset, depth, timeout=30.0):
     streed_base = "./data/streed"
     csv_path = os.path.join(streed_base, dataset)
     try:
-        result = subprocess.run(["../../streed2/out/build/x64-Release/STREED", "-task", "regression", "-file", csv_path], capture_output=True, timeout=timeout)
-        output = result.stdout.decode()
+        result = subprocess.check_output(
+            ["../../streed2/out/build/x64-Release/STREED",
+             "-task", "regression",
+             "-file", csv_path,
+             "-max-depth", str(depth),
+             "-max-num-nodes", str(2**depth - 1)], timeout=timeout)
+        output = result.decode()
         parsed = parse_output(output)
         parsed["stdout"] = output
         return parsed
