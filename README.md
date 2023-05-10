@@ -3,6 +3,7 @@ This repository contains scripts to run experiments comparing the runtime of reg
 
 # Prerequisites
 - Python (3.11.3)
+  - matplotlib
 - Visual Studio (2022) with C++ workload
 - MSYS2
 
@@ -22,6 +23,7 @@ Expects the following repositories to be checked out in the parent directory:
 3. Get the datasets in the correct format by running `python prepare_data.py`
 4. Update the path to MSYS2 bin folder in `experiments/experiments.py`, e.g. `"C:\\msys64\\ucrt64\\bin\\;"`
 5. Run `python experiments.py` to run the experiments
+6. Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.png`
 
 # Building OSRT
 0. Install MSYS2 with the following packages
