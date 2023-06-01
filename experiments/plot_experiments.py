@@ -1,68 +1,62 @@
-import json
 from pathlib import Path
 from matplotlib import pyplot as plt
-# Parts of this code were taken from https://github.com/ruizhang1996/regression-tree-benchmark
-def get_alg_plotting_style(alg):
-    if alg == 'streed':
-        shape = 's'
-        color = 'hotpink'
-        alpha = 0.75
-    elif alg == 'osrt':
-        shape = '^'
-        color = 'royalblue'
-        alpha = 0.75
-    else:
-        shape = 'x'
-        color = 'black'
-        alpha = 0.75
-
-    return shape, color, alpha
+import pandas as pd
+import seaborn as sns
+import os
 
 if __name__ == "__main__":
-    with open("./results/experiment.json", "r") as experiment_output:
-        results = json.load(experiment_output)
-        for dataset_result in results:
-            dataset = dataset_result["dataset"]
-            dataset_results = dataset_result["results"]
+    algs = ["streed_none", "streed_all", "streed_equivalent", "streed_similarity", "osrt"]
+    alg_name = {
+        "streed_none": "STreeD (None)",
+        "streed_all": "STreeD (k-Means + Similarity)",
+        "streed_equivalent": "STreeD (Equivalent Points + Similarity)",
+        "streed_similarity": "STreeD (Similarity)",
+        "osrt": "OSRT"
+    }
+    datasets_path = "./data/datasets.txt"
+    if not os.path.exists(datasets_path):
+        print("./data/datasets.txt not found. Run ./prepare_data.py to generate datasets\n")
+        exit()
+    
+    datasets = []
+    with open(datasets_path) as datasets_file:
+        datasets.extend([f.strip()[:-4] for f in datasets_file.readlines()])
 
-            fig = plt.figure(figsize=(8, 5.5), dpi=80)
-            plt.rc('font', size=18)
-            x_max = 0
-            xs = []
-            ys = {
-                "osrt": [],
-                "streed": []
-            }
-            for depth_result in dataset_results:
-                depth = depth_result["depth"]
-                experiment = depth_result["experiment"]
-                xs.append(depth)
-                for alg in ["osrt", "streed"]:
-                    ys[alg].append(experiment[alg]["time"])
-            
-            for alg in ["osrt", "streed"]:
-                shape, color, alpha = get_alg_plotting_style(alg)
-                plt.errorbar(xs, ys[alg], label=alg,
-                        marker=shape, markersize=10, c=color, alpha=alpha, linewidth=1, linestyle='none')
+    frames = []
+    for dataset in datasets:
+        dframes = []
+        for alg in algs:
+            alg_frame = pd.read_csv(f"./results/{dataset}/{alg}.csv")
+            alg_frame["Algorithm"] = alg_name[alg]
+            frames.append(alg_frame)
+            dframes.append(alg_frame)
+            alg_frame["mse_diff"] = (alg_frame["train_mse"] / dframes[0]["train_mse"]) - 1
+            if alg != "osrt": alg_frame["terminal_diff"] = (alg_frame["terminal_calls"] / dframes[0]["terminal_calls"])
+            alg_frame.drop(alg_frame[alg_frame["leaves"] <= 0].index, inplace=True)
+        combined_df = pd.concat(dframes, ignore_index=True)
 
-            # if x_max > 15:
-            #     x_major_locator = MultipleLocator(5)
-            # else:
-            #     x_major_locator = MultipleLocator(int(x_max / 4))
+        plot = sns.lineplot(x="depth", y="time", hue="Algorithm", style="Algorithm", data=combined_df)
+        plot.set(xlabel="Depth", ylabel="Training time [s]")
 
-            # plt.gca().xaxis.set_major_locator(x_major_locator)
-            # plt.gca().xaxis.set_minor_locator(AutoMinorLocator())
+        fig_path = Path(f'./figures/time/{dataset}.png')
+        fig_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(str(fig_path))
+        plt.close()
 
-            plt.xlabel('Max depth')
-            plt.ylabel('Training Time (s)')
-            plt.title('Training Time vs Tree depth\n ' + dataset)
-            # if dataset == 'yacht' and depth == 9:
-            #     plt.legend(loc='upper right')
-            # if depth == 2:
-            #     plt.legend(loc='upper left')
-            plt.legend(loc='best')
-            plt.tight_layout()
-            fig_path = Path(f'./figures/time/{dataset}.png')
-            fig_path.parent.mkdir(parents=True, exist_ok=True)
-            plt.savefig(str(fig_path))
-            plt.close()
+        plot = sns.lineplot(x="depth", y="terminal_diff", hue="Algorithm", style="Algorithm", data=combined_df[combined_df["Algorithm"] != "OSRT"])
+        plot.set(xlabel="Depth", ylabel="Percentage different in Terminal calls compared to STreeD (None)")
+
+        fig_path = Path(f'./figures/terminal/{dataset}.png')
+        fig_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(str(fig_path))
+        plt.close()
+
+
+    combined_df = pd.concat(frames, ignore_index=True)
+    plot = sns.lineplot(x="depth", y="mse_diff", hue="Algorithm", style="Algorithm", data=combined_df)
+    plot.set(xlabel="Depth", ylabel="Percentage difference in MSE compared to STreeD (None)")
+
+    fig_path = Path(f'./figures/mse_diff/{".".join(datasets)}.png')
+    fig_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(str(fig_path))
+    plt.close()

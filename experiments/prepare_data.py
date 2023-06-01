@@ -37,11 +37,17 @@ def write_streed_dataset(dataset, path):
 if __name__ == "__main__":
     dataset_path = "../../regression-tree-benchmark/experiments/datasets/"
     datasets = []
+    datasets_large = []
     for (dirpath, _, filenames) in os.walk(dataset_path):
         for file in filenames:
             path = (dirpath, file)
-            print(f"Found dataset: {path}")
-            datasets.append(path)
+            # Treat datasets >3MB different.
+            if os.stat(os.path.join(dirpath, file)).st_size > 3 * 1024 * 1024:
+                print(f"Found large dataset: {path}")
+                datasets_large.append(path)
+            else:
+                print(f"Found dataset: {path}")
+                datasets.append(path)
     
     osrt_base = "./data/osrt"
     streed_base = "./data/streed"
@@ -55,3 +61,16 @@ if __name__ == "__main__":
 
     with open("./data/datasets.txt", "w") as datasets_file:
         datasets_file.writelines([file + "\n" for (dirpath, file) in datasets])
+
+    osrt_base = "./data_large/osrt"
+    streed_base = "./data_large/streed"
+    os.makedirs(osrt_base, exist_ok=True)
+    os.makedirs(streed_base, exist_ok=True)
+
+    for (dirpath, file) in datasets_large:
+        dataset = parse_dataset(os.path.join(dirpath, file))
+        write_osrt_dataset(dataset, os.path.join(osrt_base, file))
+        write_streed_dataset(dataset, os.path.join(streed_base, file))
+
+    with open("./data/datasets_large.txt", "w") as datasets_file:
+        datasets_file.writelines([file + "\n" for (dirpath, file) in datasets_large])

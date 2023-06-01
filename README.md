@@ -3,7 +3,8 @@ This repository contains scripts to run experiments comparing the runtime of reg
 
 # Prerequisites
 - Python (3.11.3)
-  - matplotlib
+  - seaborn (matplotlib, numpy)
+  - scikit-learn
 - Visual Studio (2022) with C++ workload
 - MSYS2
 
@@ -16,10 +17,10 @@ This repository contains scripts to run experiments comparing the runtime of reg
 Expects the following repositories to be checked out in the parent directory:
 - `../optimal-sparse-regression-tree-public` (https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
 - `../regression-tree-benchmark` (https://github.com/ruizhang1996/regression-tree-benchmark)
-- `../streed2` (not published at this time)
+- `../streed-regression` (not published at this time)
 
 1. Build OSRT as described below
-2. Build streed2 using Visual Studio in release mode (executable expected at `../streed2/out/build/x64-Release/STREED`)
+2. Build streed2 using Visual Studio in release mode (check that configuration is Release, not RelWithDebInfo) (executable expected at `../streed2/out/build/x64-Release/STREED`)
 3. Get the datasets in the correct format by running `python prepare_data.py`
 4. Update the path to MSYS2 bin folder in `experiments/experiments.py`, e.g. `"C:\\msys64\\ucrt64\\bin\\;"`
 5. Run `python experiments.py` to run the experiments

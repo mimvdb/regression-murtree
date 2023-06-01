@@ -1,5 +1,7 @@
 experiments/data
+experiments/data_large
 experiments/figures
 experiments/prof.txt
+__pycache__
 build/**
 !.gitkeep
