@@ -124,7 +124,7 @@ def run_streed(dataset, depth, cost_complexity, timeout=30.0, use_lower=True, us
              "-regression-bound", "kmeans" if use_kmeans else "equivalent",
              "-cost-complexity", str(cost_complexity)], timeout=timeout)
         output = result.decode()
-        print(output)
+        #print(output)
         parsed = parse_output(output)
         return parsed
     except subprocess.TimeoutExpired as e:
