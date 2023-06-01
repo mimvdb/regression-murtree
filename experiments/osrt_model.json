@@ -1,1 +1,398 @@
-[]
+[
+  {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "false": {
+              "false": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.029355525970458984,
+                "name": "charges",
+                "prediction": 0.008591
+              },
+              "feature": 5,
+              "name": "age_1",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.009783018380403519,
+                "name": "charges",
+                "prediction": 0.014158
+              },
+              "type": "integral"
+            },
+            "feature": 12,
+            "name": "children_2",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.017382634803652763,
+              "name": "charges",
+              "prediction": 0.016517
+            },
+            "type": "integral"
+          },
+          "feature": 6,
+          "name": "age_2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.0010000000474974513,
+            "loss": 0.029506608843803406,
+            "name": "charges",
+            "prediction": 0.023252
+          },
+          "type": "integral"
+        },
+        "feature": 14,
+        "name": "children_4",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.0010000000474974513,
+          "loss": 0.002685543615370989,
+          "name": "charges",
+          "prediction": 0.024098
+        },
+        "type": "integral"
+      },
+      "feature": 7,
+      "name": "age_3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.0010000000474974513,
+        "loss": 0.029186880216002464,
+        "name": "charges",
+        "prediction": 0.031246
+      },
+      "type": "integral"
+    },
+    "feature": 1,
+    "name": "smoker_yes",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "false": {
+            "false": {
+              "false": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.00232956325635314,
+                "name": "charges",
+                "prediction": 0.039446
+              },
+              "feature": 6,
+              "name": "age_2",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.0011295083677396178,
+                "name": "charges",
+                "prediction": 0.050657
+              },
+              "type": "integral"
+            },
+            "feature": 10,
+            "name": "bmi_3",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.00017773221770767123,
+              "name": "charges",
+              "prediction": 0.099561
+            },
+            "type": "integral"
+          },
+          "feature": 9,
+          "name": "bmi_2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "false": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.004766830708831549,
+              "name": "charges",
+              "prediction": 0.090267
+            },
+            "feature": 6,
+            "name": "age_2",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.0004864797811023891,
+              "name": "charges",
+              "prediction": 0.099475
+            },
+            "type": "integral"
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "bmi_1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "false": {
+            "false": {
+              "false": {
+                "false": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.012205017730593681,
+                  "name": "charges",
+                  "prediction": 0.069302
+                },
+                "feature": 2,
+                "name": "region_northwest",
+                "reference": 1,
+                "relation": "==",
+                "true": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.004659097176045179,
+                  "name": "charges",
+                  "prediction": 0.056372
+                },
+                "type": "integral"
+              },
+              "feature": 13,
+              "name": "children_3",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "false": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.005054752808064222,
+                  "name": "charges",
+                  "prediction": 0.083736
+                },
+                "feature": 4,
+                "name": "region_southwest",
+                "reference": 1,
+                "relation": "==",
+                "true": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.00011350513523211703,
+                  "name": "charges",
+                  "prediction": 0.048511
+                },
+                "type": "integral"
+              },
+              "type": "integral"
+            },
+            "feature": 3,
+            "name": "region_southeast",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "false": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.004936757497489452,
+                "name": "charges",
+                "prediction": 0.063366
+              },
+              "feature": 6,
+              "name": "age_2",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "false": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.0017727867234498262,
+                  "name": "charges",
+                  "prediction": 0.06948
+                },
+                "feature": 0,
+                "name": "sex_male",
+                "reference": 1,
+                "relation": "==",
+                "true": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.0,
+                  "name": "charges",
+                  "prediction": 0.141356
+                },
+                "type": "integral"
+              },
+              "type": "integral"
+            },
+            "type": "integral"
+          },
+          "feature": 11,
+          "name": "children_1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "false": {
+              "false": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.0015729534206911922,
+                "name": "charges",
+                "prediction": 0.050602
+              },
+              "feature": 2,
+              "name": "region_northwest",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "complexity": 0.0010000000474974513,
+                "loss": 4.5377062633633614e-05,
+                "name": "charges",
+                "prediction": 0.094477
+              },
+              "type": "integral"
+            },
+            "feature": 0,
+            "name": "sex_male",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "false": {
+                "false": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 0.005156141240149736,
+                  "name": "charges",
+                  "prediction": 0.070088
+                },
+                "feature": 4,
+                "name": "region_southwest",
+                "reference": 1,
+                "relation": "==",
+                "true": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 5.2437470003496855e-05,
+                  "name": "charges",
+                  "prediction": 0.047946
+                },
+                "type": "integral"
+              },
+              "feature": 2,
+              "name": "region_northwest",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "complexity": 0.0010000000474974513,
+                "loss": 3.382124850759283e-05,
+                "name": "charges",
+                "prediction": 0.040666
+              },
+              "type": "integral"
+            },
+            "type": "integral"
+          },
+          "type": "integral"
+        },
+        "type": "integral"
+      },
+      "feature": 7,
+      "name": "age_3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "false": {
+          "false": {
+            "false": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.00016022429917939007,
+              "name": "charges",
+              "prediction": 0.055542
+            },
+            "feature": 10,
+            "name": "bmi_3",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.0,
+              "name": "charges",
+              "prediction": 0.144015
+            },
+            "type": "integral"
+          },
+          "feature": 9,
+          "name": "bmi_2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.0010000000474974513,
+            "loss": 0.00011861567327287048,
+            "name": "charges",
+            "prediction": 0.108024
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "bmi_1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "false": {
+            "false": {
+              "complexity": 0.0010000000474974513,
+              "loss": 0.0018923751777037978,
+              "name": "charges",
+              "prediction": 0.073225
+            },
+            "feature": 0,
+            "name": "sex_male",
+            "reference": 1,
+            "relation": "==",
+            "true": {
+              "false": {
+                "complexity": 0.0010000000474974513,
+                "loss": 0.0027031758800148964,
+                "name": "charges",
+                "prediction": 0.088919
+              },
+              "feature": 2,
+              "name": "region_northwest",
+              "reference": 1,
+              "relation": "==",
+              "true": {
+                "false": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 2.218480767623987e-05,
+                  "name": "charges",
+                  "prediction": 0.102958
+                },
+                "feature": 11,
+                "name": "children_1",
+                "reference": 1,
+                "relation": "==",
+                "true": {
+                  "complexity": 0.0010000000474974513,
+                  "loss": 1.9415934730204754e-05,
+                  "name": "charges",
+                  "prediction": 0.06208
+                },
+                "type": "integral"
+              },
+              "type": "integral"
+            },
+            "type": "integral"
+          },
+          "feature": 4,
+          "name": "region_southwest",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.0010000000474974513,
+            "loss": 0.00010016589658334851,
+            "name": "charges",
+            "prediction": 0.110159
+          },
+          "type": "integral"
+        },
+        "type": "integral"
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  }
+]
