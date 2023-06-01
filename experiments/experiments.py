@@ -118,13 +118,13 @@ def run_streed(dataset, depth, cost_complexity, timeout=30.0, use_lower=True, us
              "-file", csv_path,
              "-max-depth", str(depth),
              "-max-num-nodes", str(2**depth - 1),
-             "-time", "2.14748e+09"
-             f"-use-lower-bound {1 if use_lower else 0}",
+             "-time", str(timeout + 10),
+             "-use-lower-bound", "1" if use_lower else "0",
              "-use-task-lower-bound", "1" if use_custom else "0",
              "-regression-bound", "kmeans" if use_kmeans else "equivalent",
              "-cost-complexity", str(cost_complexity)], timeout=timeout)
         output = result.decode()
-        #print(output)
+        print(output)
         parsed = parse_output(output)
         return parsed
     except subprocess.TimeoutExpired as e:
