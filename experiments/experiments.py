@@ -9,11 +9,23 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 
 # Parts of this code were taken from https://github.com/ruizhang1996/regression-tree-benchmark
+timed_out_osrt = set()
+timed_out_streed = set()
 
 def compute_mse(model, X, y, loss_normalizer):
     return mean_squared_error(y, model.predict(X) * loss_normalizer)
 
-def run_osrt(dataset, depth, cost_complexity, timeout=30.0):
+def run_osrt(dataset, depth, cost_complexity, timeout):
+    timeout_result = {
+        "time": timeout + 1,
+        "train_mse": -1,
+        "leaves": -1,
+        "terminal_calls": -1
+    }
+    if ((dataset, depth - 1, cost_complexity) in timed_out_osrt):
+        timed_out_osrt.add((dataset, depth, cost_complexity))
+        return timeout_result
+
     txt_pattern = {
         "loss_normalizer": (r"loss_normalizer: ([\d.]+)", float),
         #"loss": (r"Loss: ([\d.]+)", float),
@@ -76,12 +88,8 @@ def run_osrt(dataset, depth, cost_complexity, timeout=30.0):
         return parsed
     except subprocess.TimeoutExpired as e:
         print(e.stdout.decode())
-        return {
-            "time": timeout + 1,
-            "train_mse": -1,
-            "leaves": -1,
-            "terminal_calls": -1
-        }
+        timed_out_osrt.add((dataset, depth, cost_complexity))
+        return timeout_result
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
         return {
@@ -92,7 +100,17 @@ def run_osrt(dataset, depth, cost_complexity, timeout=30.0):
         }
 
 
-def run_streed(dataset, depth, cost_complexity, timeout=30.0, use_lower=True, use_custom=True, use_kmeans=True):
+def run_streed(dataset, depth, cost_complexity, timeout, use_lower, use_custom, use_kmeans):
+    timeout_result = {
+        "time": timeout + 1,
+        "train_mse": -1,
+        "leaves": -1,
+        "terminal_calls": -1
+    }
+    if ((dataset, depth - 1, cost_complexity, use_lower, use_custom, use_kmeans) in timed_out_streed):
+        timed_out_streed.add((dataset, depth, cost_complexity, use_lower, use_custom, use_kmeans))
+        return timeout_result
+
     txt_pattern = {
         "terminal_calls": (r"Terminal calls: (\d+)", int),
         "train_mse": (r"Solution 0:\s+\d+\s+\d+\s+([\d.]+)", float),
@@ -129,12 +147,8 @@ def run_streed(dataset, depth, cost_complexity, timeout=30.0, use_lower=True, us
         return parsed
     except subprocess.TimeoutExpired as e:
         print(e.stdout.decode())
-        return {
-            "time": timeout + 1,
-            "train_mse": -1,
-            "leaves": -1,
-            "terminal_calls": -1
-        }
+        timed_out_streed.add((dataset, depth, cost_complexity, use_lower, use_custom, use_kmeans))
+        return timeout_result
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode())
         return {

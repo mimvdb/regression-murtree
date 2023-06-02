@@ -33,7 +33,7 @@ if __name__ == "__main__":
     cost_complexity_bins = [0, 0.003, 0.01, 0.5]
 
     frames = []
-    for dataset in datasets[:4]:
+    for dataset in datasets[:1]:
         dframes = []
         for alg in algs:
             alg_frame = pd.read_csv(f"./results/{dataset}/{alg}.csv")
