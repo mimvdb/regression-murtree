@@ -24,8 +24,6 @@ if __name__ == "__main__":
     with open(datasets_path) as datasets_file:
         datasets.extend([f.strip()[:-4] for f in datasets_file.readlines()])
 
-    datasets = datasets[:4]
-
     sns.set_style({"font.family": "Arial"})
     sns.set_style(style="darkgrid")
     sns.color_palette("colorblind")
@@ -33,7 +31,7 @@ if __name__ == "__main__":
     cost_complexity_bins = [0, 0.003, 0.01, 0.5]
 
     frames = []
-    for dataset in datasets[:1]:
+    for dataset in datasets:
         dframes = []
         for alg in algs:
             alg_frame = pd.read_csv(f"./results/{dataset}/{alg}.csv")
@@ -72,15 +70,15 @@ if __name__ == "__main__":
         plt.close()
 
 
-    combined_df = pd.concat(frames, ignore_index=True)
-    plot = sns.lineplot(x="depth", y="rmse_diff", hue="Algorithm", style="Algorithm",
-                        size="Complexity cost", size_order=reversed(cost_categories), markers=True, dashes=True, data=combined_df)
-    plot.set(xlabel="Depth", ylabel="Percentage difference in RMSE compared to STreeD (None)")
-    plot.axes.yaxis.set_major_formatter(PercentFormatter(1))
+        #combined_df = pd.concat(frames, ignore_index=True)
+        plot = sns.lineplot(x="depth", y="rmse_diff", hue="Algorithm", style="Algorithm",
+                            size="Complexity cost", size_order=reversed(cost_categories), markers=True, dashes=True, data=combined_df)
+        plot.set(xlabel="Depth", ylabel="Percentage difference in RMSE compared to STreeD (None)")
+        plot.axes.yaxis.set_major_formatter(PercentFormatter(1))
 
-    fig_path = Path(f'./figures/mse_diff/{".".join(datasets)}.svg')
-    fig_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(str(fig_path))
-    fig_path = Path(f'./figures/mse_diff/{".".join(datasets)}.png')
-    plt.savefig(str(fig_path))
-    plt.close()
+        fig_path = Path(f'./figures/mse_diff/{".".join([dataset])}.svg')
+        fig_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(str(fig_path))
+        fig_path = Path(f'./figures/mse_diff/{".".join([dataset])}.png')
+        plt.savefig(str(fig_path))
+        plt.close()
