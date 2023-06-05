@@ -12,6 +12,8 @@ from sklearn.metrics import mean_squared_error
 timed_out_osrt = set()
 timed_out_streed = set()
 
+float_pattern = r"[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?"# https://docs.python.org/3/library/re.html#simulating-scanf
+
 def compute_mse(model, X, y, loss_normalizer):
     return mean_squared_error(y, model.predict(X) * loss_normalizer)
 
@@ -27,10 +29,10 @@ def run_osrt(dataset, depth, cost_complexity, timeout):
         return timeout_result
 
     txt_pattern = {
-        "loss_normalizer": (r"loss_normalizer: ([\d.]+)", float),
-        #"loss": (r"Loss: ([\d.]+)", float),
-        #"complexity": (r"Complexity: ([\d.]+)", float),
-        "time": (r"Training Duration: ([\d.]+) seconds", float),
+        "loss_normalizer": (r"loss_normalizer: (" + float_pattern + ")", float),
+        #"loss": (r"Loss: (" + float_pattern + ")", float),
+        #"complexity": (r"Complexity: (" + float_pattern + ")", float),
+        "time": (r"Training Duration: (" + float_pattern + ") seconds", float),
     }
     model_output_path = "./osrt_model.json"
 
@@ -113,9 +115,9 @@ def run_streed(dataset, depth, cost_complexity, timeout, use_lower, use_custom, 
 
     txt_pattern = {
         "terminal_calls": (r"Terminal calls: (\d+)", int),
-        "train_mse": (r"Solution 0:\s+\d+\s+\d+\s+([\d.]+)", float),
+        "train_mse": (r"Solution 0:\s+\d+\s+\d+\s+(" + float_pattern + ")", float),
         "leaves": (r"Solution 0:\s+\d+\s+(\d+)", int),
-        "time": (r"CLOCKS FOR SOLVE: ([\d.]+)", float),
+        "time": (r"CLOCKS FOR SOLVE: (" + float_pattern + ")", float),
     }
 
     def parse_output(output):
