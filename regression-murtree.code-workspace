@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../optimal-sparse-regression-tree-public"
+		},
+		{
+			"path": "../streed2"
+		},
+		{
+			"path": "../delftblue-sample"
+		}
+	],
+	"settings": {
+	}
+}

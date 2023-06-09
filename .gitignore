@@ -7,3 +7,4 @@ experiments/osrt_model.json
 __pycache__
 build/**
 !.gitkeep
+.venv

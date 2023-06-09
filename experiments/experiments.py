@@ -28,29 +28,30 @@ def run_osrt(dataset, depth, cost_complexity, timeout):
         timed_out_osrt.add((dataset, depth, cost_complexity))
         return timeout_result
 
-    txt_pattern = {
-        "loss_normalizer": (r"loss_normalizer: (" + float_pattern + ")", float),
-        #"loss": (r"Loss: (" + float_pattern + ")", float),
-        #"complexity": (r"Complexity: (" + float_pattern + ")", float),
-        "time": (r"Training Duration: (" + float_pattern + ") seconds", float),
-    }
     model_output_path = "./osrt_model.json"
+    osrt_base = "./data/osrt"
+    csv_path = os.path.join(osrt_base, dataset)
 
     def parse_output(output):
         out = {}
-        if re.search("False-convergence Detected", output):
-            print(output)
-            return {
-                "time": -2,
-                "train_mse": -1,
-                "leaves": -1,
-                "terminal_calls": -1
-            }
-        for i in txt_pattern:
-            out[i] = txt_pattern[i][1](
-                re.search(txt_pattern[i][0], output, re.M).group(1)
-            )
+        time_pattern = r"Training Duration: (" + float_pattern + ") seconds"
+        loss_normalizer_pattern = r"loss_normalizer: (" + float_pattern + ")"
+        out["time"] = float(re.search(time_pattern, output, re.M).group(1))
         out["terminal_calls"] = 0
+        # OSRT reports False-convergence detected when a single root node is the best. Special case for this here
+        df = pd.read_csv(csv_path)
+        X_train = df[df.columns[:-1]].to_numpy()
+        y_train = df[df.columns[-1]].to_numpy()
+        if re.search("False-convergence Detected", output):
+            out["leaves"] = 1
+            out["train_mse"] = mean_squared_error(y_train, np.mean(y_train))
+        else:
+            loss_normalizer = float(re.search(loss_normalizer_pattern, output, re.M).group(1))
+            with open(model_output_path) as f:
+                models = json.load(f)
+            classifier = TreeClassifier(models[0])
+            out["train_mse"] = compute_mse(classifier, X_train, y_train, loss_normalizer)
+            out["leaves"] = classifier.leaves()
         return out
 
     with open("./osrt_config.json") as config_file:
@@ -61,9 +62,6 @@ def run_osrt(dataset, depth, cost_complexity, timeout):
         with open("./osrt_config.tmp.json", "w") as tmp_config_file:
             json.dump(config_base, tmp_config_file)
 
-    osrt_base = "./data/osrt"
-    csv_path = os.path.join(osrt_base, dataset)
-
     msys_env = os.environ.copy()
     msys_env["PATH"] = "C:\\msys64\\ucrt64\\bin\\;" + msys_env["PATH"]
     try:
@@ -73,20 +71,6 @@ def run_osrt(dataset, depth, cost_complexity, timeout):
         output = result.decode()
         #print(output)
         parsed = parse_output(output)
-
-        if "loss_normalizer" not in parsed:
-            return parsed
-                  
-        loss_normalizer = parsed["loss_normalizer"]
-        df = pd.read_csv(csv_path)
-        X_train = df[df.columns[:-1]].to_numpy()
-        y_train = df[df.columns[-1]].to_numpy()
-        with open(model_output_path) as f:
-            models = json.load(f)
-        classifier = TreeClassifier(models[0])
-        parsed["train_mse"] = compute_mse(classifier, X_train, y_train, loss_normalizer)
-        parsed["leaves"] = classifier.leaves()
-        del parsed["loss_normalizer"]
         return parsed
     except subprocess.TimeoutExpired as e:
         print(e.stdout.decode())
