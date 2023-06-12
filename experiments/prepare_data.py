@@ -67,10 +67,21 @@ if __name__ == "__main__":
     os.makedirs(osrt_base, exist_ok=True)
     os.makedirs(streed_base, exist_ok=True)
 
+    splits = []
     for (dirpath, file) in datasets_large:
-        dataset = parse_dataset(os.path.join(dirpath, file))
-        write_osrt_dataset(dataset, os.path.join(osrt_base, file))
-        write_streed_dataset(dataset, os.path.join(streed_base, file))
-
+        header, entries = parse_dataset(os.path.join(dirpath, file))
+        i = 4
+        while 10**i < len(entries):
+            name = f"split_e{i}_{file}"
+            splits.append(name)
+            chunk = entries[0:10**i]
+            write_osrt_dataset((header, chunk), os.path.join(osrt_base, name))
+            write_streed_dataset((header, chunk), os.path.join(streed_base, name))
+            i += 1
+        name = "split_full_" + file
+        splits.append(name)
+        write_osrt_dataset((header, entries), os.path.join(osrt_base, name))
+        write_streed_dataset((header, entries), os.path.join(streed_base, name))
+    
     with open("./data/datasets_large.txt", "w") as datasets_file:
-        datasets_file.writelines([file + "\n" for (dirpath, file) in datasets_large])
+        datasets_file.writelines([file + "\n" for file in splits])
