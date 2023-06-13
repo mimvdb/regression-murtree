@@ -1,4 +1,7 @@
 experiments/data
+experiments/experiment
+experiments/experiment-eval
+experiments/tmp
 experiments/data_large
 experiments/figures
 experiments/prof.txt

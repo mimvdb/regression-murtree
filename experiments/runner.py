@@ -15,7 +15,7 @@ from lab import tools
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 OSRT_PATH = SCRIPT_DIR / ".." / ".." / "optimal-sparse-regression-tree-public" / "build" / "gosdt" # SCRIPT_DIR / "gosdt"
-STREED_PATH = SCRIPT_DIR / "STREED"
+STREED_PATH = SCRIPT_DIR / ".." / ".." / "streed2" / "build" / "STREED" # SCRIPT_DIR / "STREED"
 
 class CsvReport(Report):
     def __init__(self, attributes=None, filter=None, delimiter=',', **kwargs):
@@ -68,7 +68,7 @@ class DelftBlueEnvironment(SlurmEnvironment):
 def add_osrt_run(experiment: Experiment, timeout: int, dataset: str, depth: int, cost_complexity: float, sequence: int):
     run = experiment.add_run()
 
-    id_str = f"{dataset}_{depth}_{cost_complexity}_{sequence}"
+    id_str = f"osrt_{dataset}_{depth}_{cost_complexity}_{sequence}"
 
     model_output_path = SCRIPT_DIR / "tmp" / "osrt" / "models" / f"{id_str}.json"
     config_path = SCRIPT_DIR / "tmp" / "osrt" / "configs" / f"{id_str}.json"
@@ -86,7 +86,7 @@ def add_osrt_run(experiment: Experiment, timeout: int, dataset: str, depth: int,
     run.add_command(f"osrt", ["timeout", timeout, OSRT_PATH, dataset_path, config_path])
 
     # Set unique id
-    run.set_property("id", [dataset, str(depth), str(cost_complexity), str(sequence)])
+    run.set_property("id", ["osrt", dataset, str(depth), str(cost_complexity), str(sequence)])
     run.set_property("id_str", id_str)
     run.set_property("timeout", timeout)
     run.set_property("algorithm", "osrt")
@@ -95,6 +95,36 @@ def add_osrt_run(experiment: Experiment, timeout: int, dataset: str, depth: int,
     run.set_property("cost_complexity", cost_complexity)
     run.set_property("sequence", sequence)
     run.set_property("model_output_path", str(model_output_path))
+    run.set_property("csv_path", str(dataset_path))
+
+def add_streed_run(experiment: Experiment, timeout: int, dataset: str, depth: int, cost_complexity: float, sequence: int, extra_label: str, use_lower: bool, use_custom: bool, use_kmeans: bool):
+    run = experiment.add_run()
+
+    id_str = f"streed_{extra_label}_{dataset}_{depth}_{cost_complexity}_{sequence}_{extra_label}"
+
+    dataset_path = SCRIPT_DIR / "data" / "streed" / dataset
+
+    run.add_command(f"streed_{extra_label}",
+                    ["timeout", timeout, STREED_PATH,
+                    "-task", "cost-complex-regression",
+                    "-file", dataset_path,
+                    "-max-depth", str(depth),
+                    "-max-num-nodes", str(2**depth - 1),
+                    "-time", str(timeout + 10),
+                    "-use-lower-bound", "1" if use_lower else "0",
+                    "-use-task-lower-bound", "1" if use_custom else "0",
+                    "-regression-bound", "kmeans" if use_kmeans else "equivalent",
+                    "-cost-complexity", str(cost_complexity)])
+
+    # Set unique id
+    run.set_property("id", ["streed", extra_label, dataset, str(depth), str(cost_complexity), str(sequence)])
+    run.set_property("id_str", id_str)
+    run.set_property("timeout", timeout)
+    run.set_property("algorithm", f"streed_{extra_label}")
+    run.set_property("dataset", dataset)
+    run.set_property("depth", depth)
+    run.set_property("cost_complexity", cost_complexity)
+    run.set_property("sequence", sequence)
     run.set_property("csv_path", str(dataset_path))
 
 def add_runs(experiment: Experiment, timeout: int):
@@ -110,6 +140,10 @@ def add_runs(experiment: Experiment, timeout: int):
     complexities = list(np.concatenate([[0.0001, 0.0002, 0.0005], np.arange(0.001, 0.01, 0.001), np.arange(0.01, 0.11, 0.025), [0.1, 0.2, 0.5]]))
     for dataset in dataset_files:
         add_osrt_run(experiment, timeout, dataset, 3, 0.001, 0)
+        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "none", False, False, False)
+        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "similarity", True, False, False)
+        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "equivalent", True, True, False)
+        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "all", True, True, True)
         #for depth in range(2, 11):
         #    for cost_complexity in complexities:
         #        for i in range(5):
@@ -144,7 +178,6 @@ if __name__ == "__main__":
     exp.add_step("start", exp.start_runs)
     exp.add_fetcher(name="fetch")
     exp.add_parse_again_step()
-
 
     exp.add_report(CsvReport(attributes=[
         "timeout",

@@ -1,6 +1,8 @@
 from lab.parser import Parser
 from lab.tools import Properties
 from sklearn.metrics import mean_squared_error
+import logging
+import errno
 import re
 import json
 import os
@@ -8,6 +10,7 @@ import re
 import numpy as np
 import pandas as pd
 
+# from model.tree_classifier import TreeClassifier # This file is copied to the experiment directory and cannot use relative imports.
 # Start of TreeClassifier, copied from https://github.com/ruizhang1996/regression-tree-benchmark/tree/main/script/processors/model
 import pandas as pd
 import numpy as np
@@ -552,4 +555,35 @@ def parse_output(content, props):
 if __name__ == "__main__":
     parser = Parser()
     parser.add_function(parse_output)
-    parser.parse()
+
+    # parser.parse() # If timeout, outfile may be missing, in that case this throws.
+    # So here a copy-paste of that function but fixed
+    run_dir = os.path.abspath(".")
+    prop_file = os.path.join(run_dir, "properties")
+    parser.props = Properties(filename=prop_file)
+
+    for filename, file_parser in list(parser.file_parsers.items()):
+        # If filename is absolute it will not be changed here.
+        path = os.path.join(run_dir, filename)
+        try:
+            file_parser.load_file(path)
+        except OSError as err:
+            if err.errno == errno.ENOENT:
+                logging.info(f'File "{path}" is missing and thus not parsed.')
+                del parser.file_parsers[filename]
+            else:
+                logging.error(f'Failed to read "{path}": {err}')
+
+    for file_parser in parser.file_parsers.values():
+        parser.props.update(file_parser.search_patterns())
+
+    for function in parser.functions:
+        content = ""
+        try:
+            with open(function.filename) as f:
+                content = f.read()
+        except FileNotFoundError:
+            logging.info(f'File "{function.filename}" is missing and parsed as empty content.')
+        function.function(content, parser.props)
+
+    parser.props.write()
