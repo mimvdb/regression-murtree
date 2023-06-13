@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     exp.add_report(CsvReport(attributes=[
         "timeout",
-        "algorithm"
+        "algorithm",
         "dataset",
         "depth",
         "cost_complexity",

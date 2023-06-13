@@ -1,7 +1,9 @@
 from lab.parser import Parser
+from lab.tools import Properties
 from sklearn.metrics import mean_squared_error
 import re
 import json
+import os
 import re
 import numpy as np
 import pandas as pd
@@ -488,17 +490,19 @@ def compute_mse(model, X, y, loss_normalizer):
     return mean_squared_error(y, model.predict(X) * loss_normalizer)
 
 def parse_output(content, props):
+    run_dir = os.path.abspath(".")
+    prop_file = os.path.join(run_dir, "static-properties")
+    static_props = Properties(prop_file)
     if "Generalized Optimal Sparse Regression Tree" in content:
         if "Training Duration: " not in content:
             # Timeout
-            props["time"] = int(props["timeout"]) + 1
+            props["time"] = int(static_props["timeout"]) + 1
             props["train_mse"] = -1
             props["leaves"] = -1
             props["terminal_calls"] = -1
             return
-        print(props)
-        csv_path = props["csv_path"]
-        model_output_path = props["model_output_path"]
+        csv_path = static_props["csv_path"]
+        model_output_path = static_props["model_output_path"]
 
         time_pattern = r"Training Duration: (" + float_pattern + ") seconds"
         loss_normalizer_pattern = r"loss_normalizer: (" + float_pattern + ")"
@@ -523,7 +527,7 @@ def parse_output(content, props):
     else:
         if "Solution 0" not in content:
             # Timeout
-            props["time"] = int(props["timeout"]) + 1
+            props["time"] = int(static_props["timeout"]) + 1
             props["train_mse"] = -1
             props["leaves"] = -1
             props["terminal_calls"] = -1
