@@ -1,5 +1,6 @@
+#! /usr/bin/env python
+
 from pathlib import Path
-from argparse import ArgumentParser
 import csv
 import json
 import logging
@@ -137,34 +138,28 @@ def add_runs(experiment: Experiment, timeout: int):
     with open(datasets_path) as datasets_file:
         dataset_files.extend([f.strip() for f in datasets_file.readlines()])
 
-    complexities = list(np.concatenate([[0.0001, 0.0002, 0.0005], np.arange(0.001, 0.01, 0.001), np.arange(0.01, 0.11, 0.025), [0.1, 0.2, 0.5]]))
+    complexities = [0.0001, 0.001, 0.005, 0.01, 0.1]
     for dataset in dataset_files:
-        add_osrt_run(experiment, timeout, dataset, 3, 0.001, 0)
-        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "none", False, False, False)
-        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "similarity", True, False, False)
-        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "equivalent", True, True, False)
-        add_streed_run(experiment, timeout, dataset, 3, 0.001, 0, "all", True, True, True)
-        #for depth in range(2, 11):
-        #    for cost_complexity in complexities:
-        #        for i in range(5):
-        #            add_osrt_run(experiment, timeout, dataset, depth, cost_complexity, i)
-                    #add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i)
+        for depth in range(3, 11):
+            for cost_complexity in complexities:
+                for i in range(3):
+                    add_osrt_run(experiment, timeout, dataset, depth, cost_complexity, i)
+                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "none", False, False, False)
+                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "similarity", True, False, False)
+                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "equivalent", True, True, False)
+                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "all", True, True, True)
 
 
 if __name__ == "__main__":
-    argparser = ArgumentParser()
-    argparser.add_argument("environment", choices=["local", "delftblue"])
-    argparser.add_argument("--email", required=False)
-    argparser.add_argument("--account", required=False)
-    args = argparser.parse_args()
 
     env =\
-        LocalEnvironment(processes=4) if args.environment == "local" else\
+        LocalEnvironment(processes=1) if False else\
         DelftBlueEnvironment(
-            args.email,
-            args.account,
+            "",
+            "",
             "compute",
-            "00:02:00", # 100 seconds timeout, leave leeway so tasks don't get vanished
+            # 100 seconds timeout, leave leeway so tasks don't get vanished
+            "02:00:00", # Big chunk of time needed for build/fetch/parse, no way to give only that task time
             "8G"
         )
 
@@ -177,7 +172,7 @@ if __name__ == "__main__":
     exp.add_step("build", exp.build)
     exp.add_step("start", exp.start_runs)
     exp.add_fetcher(name="fetch")
-    exp.add_parse_again_step()
+    # exp.add_parse_again_step()
 
     exp.add_report(CsvReport(attributes=[
         "timeout",
@@ -191,5 +186,4 @@ if __name__ == "__main__":
         "terminal_calls"
     ]), outfile="report.csv")
 
-    # exp.run_steps() # This triggers an argparse to select steps
-    env.run_steps(exp.steps)
+    exp.run_steps()

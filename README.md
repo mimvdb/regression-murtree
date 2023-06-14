@@ -65,11 +65,39 @@ msys2-runtime 3.4.6-2
 
 # Delftblue
 
-# Load required modules to build OSRT/STreeD and run experiments
+https://doc.dhpc.tudelft.nl/delftblue/
+
+## Load required modules to build OSRT/STreeD and run experiments
+
+For all:
+```bash
 module load 2022r2
-module load python
-module load gcc/11.2.0
-module load cmake
+```
+For osrt:
+```bash
 module load boost
 module load gmp
 module load intel/oneapi-all
+```
+For streed:
+```bash
+module load cmake
+```
+For experiments:
+```bash
+module load python
+module load py-numpy
+module load py-scikit-learn
+module load py-pillow
+module load py-pip
+```
+Install python packages as in requirements.txt, make sure pandas is compatible with numpy (use 1.3.4), copy experiments folder to machine, change email/account in runner.py and run `./runner.py --all`.
+
+## Fix library and include path
+Remove the stdin check from main.cpp.
+Add the include path of libgmp module (hint: find with echo $LD_LIBRARY_PATH) to `Makefile.am`
+`export LIBRARY_PATH=$LIBRARY_PATH:$LD_LIBRARY_PATH`
+`automake --add-missing`
+`./autobuild --configure --force`
+`./configure`
+`make gosdt`, not `./autobuild --build`
