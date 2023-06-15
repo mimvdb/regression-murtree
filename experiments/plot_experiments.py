@@ -181,7 +181,7 @@ def plot_ecdf_runtime(frame, path, timeout):
 
 def plot_scalability(frame, path):
     print("Plotting scalability")
-    valids = frame[np.logical_and(frame["leaves"] > 0, frame["depth"] == 4, frame["cost_complexity"] == 0.0001)]
+    valids = frame[frame["leaves"] > 0]
     print(f"Plotting {len(valids)} rows")
     plot = sns.lineplot(x="dataset_size", y="time", hue="Algorithm", style="Algorithm", data=valids)
     plot.set(xlabel="Dataset size", ylabel="Training time (s)")
@@ -207,6 +207,24 @@ if __name__ == "__main__":
         y_train = df[df.columns[-1]].to_numpy()
         dataset_sizes[ds] = len(y_train)
         dataset_variances[ds] = mean_squared_error(y_train, np.full(len(y_train), np.mean(y_train)))
+    
+    datasetsl_path = "./data/datasets_large.txt"
+    if not os.path.exists(datasetsl_path):
+        print("./data/datasets_large.txt not found. Run ./prepare_data.py to generate datasets\n")
+        exit()
+    
+    datasetsl = []
+    with open(datasetsl_path) as datasetsl_file:
+        datasetsl.extend([f.strip()[:-4] for f in datasetsl_file.readlines()])
+
+    datasetl_variances = {}
+    datasetl_sizes = {}
+    for ds in datasetsl:
+        df = pd.read_csv(f"./data_large/osrt/{ds}.csv")
+        print(f"Read {ds}, rows {len(df)}")
+        y_train = df[df.columns[-1]].to_numpy()
+        datasetl_sizes[ds] = len(y_train)
+        datasetl_variances[ds] = mean_squared_error(y_train, np.full(len(y_train), np.mean(y_train)))
 
     sns.set_style({"font.family": "Arial"})
     sns.set_style(style="darkgrid")
@@ -215,6 +233,8 @@ if __name__ == "__main__":
     #combined_df = read_all(datasets, algs)
     combined_df = pd.read_csv(f"./results/report.csv")
     combined_df = preprocess(combined_df, dataset_variances, dataset_sizes)
+    combined_dfl = pd.read_csv(f"./results/report-scale.csv")
+    combined_dfl = preprocess(combined_dfl, datasetl_variances, datasetl_sizes)
 
     # for ds in datasets:
     #     fig_path = Path(f'./figures/mse_diff/{ds}')
@@ -224,7 +244,7 @@ if __name__ == "__main__":
     #     fig_path = Path(f'./figures/time/{ds}')
     #     plot_runtime(combined_df[combined_df["dataset"] == ds], fig_path)
     
-    plot_scalability(combined_df, Path("./figures/scalability"))
+    plot_scalability(combined_dfl, Path("./figures/scalability"))
     plot_ecdf_runtime(combined_df, Path("./figures/runtime_ecdf"), 100)
     plot_terminal_calls(combined_df, Path("./figures/terminal"))
     #plot_mse(combined_df, Path("./figures/mse"))

@@ -73,7 +73,7 @@ def add_osrt_run(experiment: Experiment, timeout: int, dataset: str, depth: int,
 
     model_output_path = SCRIPT_DIR / "tmp" / "osrt" / "models" / f"{id_str}.json"
     config_path = SCRIPT_DIR / "tmp" / "osrt" / "configs" / f"{id_str}.json"
-    dataset_path = SCRIPT_DIR / "data" / "osrt" / dataset
+    dataset_path = SCRIPT_DIR / "data_large" / "osrt" / dataset
     os.makedirs(model_output_path.parent.resolve(), exist_ok=True)
     os.makedirs(config_path.parent.resolve(), exist_ok=True)
     with open(SCRIPT_DIR / "osrt_config.json") as config_file:
@@ -103,7 +103,7 @@ def add_streed_run(experiment: Experiment, timeout: int, dataset: str, depth: in
 
     id_str = f"streed_{extra_label}_{dataset}_{depth}_{cost_complexity}_{sequence}_{extra_label}"
 
-    dataset_path = SCRIPT_DIR / "data" / "streed" / dataset
+    dataset_path = SCRIPT_DIR / "data_large" / "streed" / dataset
 
     run.add_command(f"streed_{extra_label}",
                     ["timeout", timeout, STREED_PATH,
@@ -129,7 +129,7 @@ def add_streed_run(experiment: Experiment, timeout: int, dataset: str, depth: in
     run.set_property("csv_path", str(dataset_path))
 
 def add_runs(experiment: Experiment, timeout: int):
-    datasets_path = SCRIPT_DIR / "data" / "datasets.txt"
+    datasets_path = SCRIPT_DIR / "data" / "datasets_large.txt"
     if not os.path.exists(datasets_path):
         print("datasets.txt not found. Run ./prepare_data.py to generate datasets\n")
         exit()
@@ -138,16 +138,15 @@ def add_runs(experiment: Experiment, timeout: int):
     with open(datasets_path) as datasets_file:
         dataset_files.extend([f.strip() for f in datasets_file.readlines()])
 
-    complexities = [0.0001, 0.001, 0.005, 0.01, 0.1]
     for dataset in dataset_files:
-        for depth in range(3, 11):
-            for cost_complexity in complexities:
-                for i in range(3):
-                    add_osrt_run(experiment, timeout, dataset, depth, cost_complexity, i)
-                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "none", False, False, False)
-                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "similarity", True, False, False)
-                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "equivalent", True, True, False)
-                    add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "all", True, True, True)
+        for i in range(3):
+            depth = 5
+            cost_complexity = 0.035
+            add_osrt_run(experiment, timeout, dataset, depth, cost_complexity, i)
+            add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "none", False, False, False)
+            add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "similarity", True, False, False)
+            add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "equivalent", True, True, False)
+            add_streed_run(experiment, timeout, dataset, depth, cost_complexity, i, "all", True, True, True)
 
 
 if __name__ == "__main__":
@@ -158,16 +157,15 @@ if __name__ == "__main__":
             "",
             "",
             "compute",
-            # 100 seconds timeout, leave leeway so tasks don't get vanished
-            "01:00:00", # Big chunk of time needed for build/fetch/parse, no way to give only that task time
-            "8G"
+            "00:45:00",
+            "100G"
         )
 
     # The folder in which experiment files are generated.
-    exp = Experiment(environment=env, path=SCRIPT_DIR / "experiment")
+    exp = Experiment(environment=env, path=SCRIPT_DIR / "experiment_scalabilty")
     exp.add_parser("parser.py")
 
-    add_runs(exp, 100)
+    add_runs(exp, 30*60)
 
     exp.add_step("build", exp.build)
     exp.add_step("start", exp.start_runs)
