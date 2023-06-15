@@ -41,7 +41,7 @@ def preprocess(frame: pd.DataFrame, dataset_variances):
         alg_frames[alg] = frame[frame["algorithm"] == alg].copy()
         alg_frames[alg]["dataset_var"] = alg_frames[alg]["dataset"].map(dataset_variances)
         alg_frames[alg]["Training objective"] = alg_frames[alg]["train_mse"] + \
-            alg_frames[alg]["cost_complexity"] * (alg_frames[alg]["leaves"] - 1) * alg_frames[alg]["dataset_var"]
+            alg_frames[alg]["cost_complexity"] * alg_frames[alg]["leaves"] * alg_frames[alg]["dataset_var"]
         alg_frames[alg]["Algorithm"] = alg_name[alg]
         alg_frames[alg]["validity_test"] = True
     

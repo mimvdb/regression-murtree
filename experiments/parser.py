@@ -519,7 +519,7 @@ def parse_output(content, props):
         # OSRT reports False-convergence detected when a single root node is the best. Special case for this here
         if re.search("False-convergence Detected", content):
             props["leaves"] = 1
-            props["train_mse"] = mean_squared_error(y_train, np.mean(y_train))
+            props["train_mse"] = mean_squared_error(y_train, np.full(len(y_train), np.mean(y_train)))
         else:
             loss_normalizer = float(re.search(loss_normalizer_pattern, content, re.M).group(1))
             with open(model_output_path) as f:

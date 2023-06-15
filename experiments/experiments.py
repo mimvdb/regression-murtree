@@ -44,7 +44,7 @@ def run_osrt(dataset, depth, cost_complexity, timeout):
         y_train = df[df.columns[-1]].to_numpy()
         if re.search("False-convergence Detected", output):
             out["leaves"] = 1
-            out["train_mse"] = mean_squared_error(y_train, np.mean(y_train))
+            out["train_mse"] = mean_squared_error(y_train, np.full(len(y_train), np.mean(y_train)))
         else:
             loss_normalizer = float(re.search(loss_normalizer_pattern, output, re.M).group(1))
             with open(model_output_path) as f:
