@@ -70,7 +70,7 @@ if __name__ == "__main__":
     splits = []
     for (dirpath, file) in datasets_large:
         header, entries = parse_dataset(os.path.join(dirpath, file))
-        i = 4
+        i = 2
         while 10**i < len(entries):
             name = f"split_e{i}_{file}"
             splits.append(name)

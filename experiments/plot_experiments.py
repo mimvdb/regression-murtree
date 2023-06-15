@@ -34,19 +34,26 @@ def read_all(datasets, algs):
             
     return pd.concat(frames, ignore_index=True)
 
-def preprocess(frame: pd.DataFrame, dataset_variances):
+def preprocess(frame: pd.DataFrame, dataset_variances, dataset_sizes):
+    def filter_out_csv(ds: str):
+        if ds.endswith(".csv"):
+            return ds[:-4]
+        return ds
+
     # Split into a frame for each algorithm
     alg_frames = {}
     for alg in algs:
         alg_frames[alg] = frame[frame["algorithm"] == alg].copy()
+        alg_frames[alg]["dataset"] = alg_frames[alg]["dataset"].map(filter_out_csv)
         alg_frames[alg]["dataset_var"] = alg_frames[alg]["dataset"].map(dataset_variances)
+        alg_frames[alg]["dataset_size"] = alg_frames[alg]["dataset"].map(dataset_sizes)
         alg_frames[alg]["Training objective"] = alg_frames[alg]["train_mse"] + \
             alg_frames[alg]["cost_complexity"] * alg_frames[alg]["leaves"] * alg_frames[alg]["dataset_var"]
         alg_frames[alg]["Algorithm"] = alg_name[alg]
         alg_frames[alg]["validity_test"] = True
     
     # Line up all matching rows and augment data
-    id_set = ["dataset", "depth", "cost_complexity", "sequence"]
+    id_set = ["dataset", "depth", "cost_complexity"]
     for alg in algs:
         alg_frames[alg].sort_values(by=id_set)
         alg_frames[alg].reset_index(drop=True, inplace=True)
@@ -77,7 +84,7 @@ def save_plot(path):
 
 def plot_mse(frame: pd.DataFrame, path):
     valids = frame[frame["rmse_makes_sense"]]
-    valids[np.logical_and(np.abs(frame["rtraining_diff"]) > 0.05, frame["depth"] <= 2)].to_csv("./bad_values.csv")
+    #valids[np.logical_and(np.abs(frame["rtraining_diff"]) > 0.05, frame["depth"] <= 2)].to_csv("./bad_values.csv")
     print("Plotting RMSE diff")
     plot = sns.lineplot(x="depth", y="rmse_diff", hue="Algorithm", style="Algorithm",
                         #size="Complexity cost", size_order=reversed(cost_categories),
@@ -160,11 +167,26 @@ def plot_ecdf_runtime(frame, path, timeout):
     print("Plotting ECDF of runtime")
     if (frame["time"] < 0).any():
         print("Output contains error, not plotting anything")
-        #return # Allow temporarily
-    plot = sns.ecdfplot(x="time", hue="Algorithm", log_scale=True, data=frame)
+        return
+    def map_timeout(timeout):
+        if timeout > 100:
+            return 2000
+        return timeout
+    frame["time_adjusted"] = frame["time"].map(map_timeout)
+    plot = sns.ecdfplot(x="time_adjusted", hue="Algorithm", log_scale=True, data=frame)
     plot.set(xlabel="Time", ylabel="Percentage trees solved")
-    plot.axes.set(xlim=(0.0001, timeout))
+    plot.axes.set(xlim=(0.0005, timeout))
     plot.axes.yaxis.set_major_formatter(PercentFormatter(1))
+    save_plot(path)
+
+def plot_scalability(frame, path):
+    print("Plotting scalability")
+    valids = frame[np.logical_and(frame["leaves"] > 0, frame["depth"] == 4, frame["cost_complexity"] == 0.0001)]
+    print(f"Plotting {len(valids)} rows")
+    plot = sns.lineplot(x="dataset_size", y="time", hue="Algorithm", style="Algorithm", data=valids)
+    plot.set(xlabel="Dataset size", ylabel="Training time (s)")
+    plot.set_xscale("log")
+    plot.set_yscale("log")
     save_plot(path)
 
 if __name__ == "__main__":
@@ -178,17 +200,21 @@ if __name__ == "__main__":
         datasets.extend([f.strip()[:-4] for f in datasets_file.readlines()])
 
     dataset_variances = {}
+    dataset_sizes = {}
     for ds in datasets:
         df = pd.read_csv(f"./data/osrt/{ds}.csv")
+        print(f"Read {ds}, rows {len(df)}")
         y_train = df[df.columns[-1]].to_numpy()
+        dataset_sizes[ds] = len(y_train)
         dataset_variances[ds] = mean_squared_error(y_train, np.full(len(y_train), np.mean(y_train)))
 
     sns.set_style({"font.family": "Arial"})
     sns.set_style(style="darkgrid")
     sns.color_palette("colorblind")
 
-    combined_df = read_all(datasets, algs)
-    combined_df = preprocess(combined_df, dataset_variances)
+    #combined_df = read_all(datasets, algs)
+    combined_df = pd.read_csv(f"./results/report.csv")
+    combined_df = preprocess(combined_df, dataset_variances, dataset_sizes)
 
     # for ds in datasets:
     #     fig_path = Path(f'./figures/mse_diff/{ds}')
@@ -198,6 +224,7 @@ if __name__ == "__main__":
     #     fig_path = Path(f'./figures/time/{ds}')
     #     plot_runtime(combined_df[combined_df["dataset"] == ds], fig_path)
     
-    plot_mse(combined_df, Path("./figures/mse"))
+    plot_scalability(combined_df, Path("./figures/scalability"))
+    plot_ecdf_runtime(combined_df, Path("./figures/runtime_ecdf"), 100)
     plot_terminal_calls(combined_df, Path("./figures/terminal"))
-    plot_ecdf_runtime(combined_df, Path("./figures/runtime_ecdf"), 30)
+    #plot_mse(combined_df, Path("./figures/mse"))
