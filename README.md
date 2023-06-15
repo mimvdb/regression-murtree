@@ -1,9 +1,5 @@
 # Regression MurTree
-This repository contains scripts to run experiments comparing the runtime of regression tree training algorithms
-
-## Notes
-- OSRT can directly optimize for an objective without a depth constraint
-- OSRT will crash if regularization factor is set to 0
+This repository contains scripts to run experiments comparing the runtime of optimal regression tree training algorithms
 
 # Linux
 ## Prerequisites

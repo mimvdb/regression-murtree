@@ -79,6 +79,7 @@ def preprocess(frame: pd.DataFrame, dataset_variances, dataset_sizes):
 def save_plot(path):
     path.parent.mkdir(parents=True, exist_ok=True)
     for f in fig_formats:
+        plt.tight_layout()
         plt.savefig(str(path) + f)
     plt.close()
 
@@ -159,8 +160,11 @@ def plot_terminal_calls(frame, path):
     valids = frame[frame["terminal_makes_sense"]]
     print("Plotting terminal calls")
     plot = sns.lineplot(x="depth", y="terminal_diff", hue="Algorithm", style="Algorithm", data=valids)
-    plot.set(xlabel="Depth", ylabel="Percentage calls to depth-2 solver compared to STreeD (None)")
+    sns.move_legend(plot, "upper right", bbox_to_anchor=(1.0, 1.0), title="")
+    plot.set(xlabel="Depth", ylabel="Depth-2 solver calls compared to STreeD (None)")
     plot.axes.yaxis.set_major_formatter(PercentFormatter(1))
+    plot.axes.xaxis.set_tick_params(labelsize = 14);
+    plot.axes.yaxis.set_tick_params(labelsize = 14);
     save_plot(path)
 
 def plot_ecdf_runtime(frame, path, timeout):
@@ -174,8 +178,11 @@ def plot_ecdf_runtime(frame, path, timeout):
         return timeout
     frame["time_adjusted"] = frame["time"].map(map_timeout)
     plot = sns.ecdfplot(x="time_adjusted", hue="Algorithm", log_scale=True, data=frame)
+    sns.move_legend(plot, "upper left", bbox_to_anchor=(0.0, 1.0), title="")
     plot.set(xlabel="Time", ylabel="Percentage trees solved")
     plot.axes.set(xlim=(0.0005, timeout))
+    plot.axes.xaxis.set_tick_params(labelsize = 14);
+    plot.axes.yaxis.set_tick_params(labelsize = 14);
     plot.axes.yaxis.set_major_formatter(PercentFormatter(1))
     save_plot(path)
 
@@ -184,9 +191,12 @@ def plot_scalability(frame, path):
     valids = frame[frame["leaves"] > 0]
     print(f"Plotting {len(valids)} rows")
     plot = sns.lineplot(x="dataset_size", y="time", hue="Algorithm", style="Algorithm", data=valids)
+    sns.move_legend(plot, "lower right", bbox_to_anchor=(1.0, 0.0), title="")
     plot.set(xlabel="Dataset size", ylabel="Training time (s)")
     plot.set_xscale("log")
     plot.set_yscale("log")
+    plot.axes.xaxis.set_tick_params(labelsize = 14);
+    plot.axes.yaxis.set_tick_params(labelsize = 14);
     save_plot(path)
 
 if __name__ == "__main__":
@@ -229,6 +239,8 @@ if __name__ == "__main__":
     sns.set_style({"font.family": "Arial"})
     sns.set_style(style="darkgrid")
     sns.color_palette("colorblind")
+    #sns.set(font_scale=1.2)
+    #plt.figure(figsize=(6.5, 4))
 
     #combined_df = read_all(datasets, algs)
     combined_df = pd.read_csv(f"./results/report.csv")

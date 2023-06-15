@@ -3,6 +3,7 @@ cycler==0.11.0
 fonttools==4.39.4
 joblib==1.2.0
 kiwisolver==1.4.4
+lab==7.3
 matplotlib==3.7.1
 numpy==1.24.3
 packaging==23.1
@@ -14,6 +15,8 @@ pytz==2023.3
 scikit-learn==1.2.2
 scipy==1.10.1
 seaborn==0.12.2
+simplejson==3.19.1
 six==1.16.0
 threadpoolctl==3.1.0
+txt2tags==3.8
 tzdata==2023.3
