@@ -1,5 +1,5 @@
 # Regression MurTree
-This repository contains scripts to run experiments comparing the runtime of optimal regression tree training algorithms
+This repository contains the experiments performed for the bachelor thesis "Optimal Regression Trees via Dynamic Programming: Optimization techniques for learning Regression Trees" (http://resolver.tudelft.nl/uuid:377edc0f-00b9-4481-840f-0fde43c494b9), as part of the Research Project 2023/Q4 (https://cse3000-research-project.github.io/2023/Q4) at the TU Delft.
 
 # Linux
 ## Prerequisites
