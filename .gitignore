@@ -10,4 +10,9 @@ experiments/osrt_model.json
 __pycache__
 build/**
 !.gitkeep
-.venv
+.venv/
+*.code-workspace
+.vscode/
+data/binarized/
+data/cleaned/
+data/raw/

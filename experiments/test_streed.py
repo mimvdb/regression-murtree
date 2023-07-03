@@ -13,11 +13,11 @@ try:
         ["../../streed2/build/STREED",
             "-task", "cost-complex-regression",
             "-file", "./data/streed/insurance.csv",
-            "-max-depth", "2",
-            "-max-num-nodes", "3",
+            "-max-depth", "4",
+            "-max-num-nodes", "15",
             "-time", "20",
-            "-use-lower-bound", "0",
-            "-use-task-lower-bound", "0",
+            "-use-lower-bound", "1",
+            "-use-task-lower-bound", "1",
             "-regression-bound", "kmeans",
             "-cost-complexity", "0.085"])
     output = result.decode()

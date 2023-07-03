@@ -1,10 +1,20 @@
 # Regression MurTree
 This repository contains the experiments performed for the bachelor thesis "Optimal Regression Trees via Dynamic Programming: Optimization techniques for learning Regression Trees" (http://resolver.tudelft.nl/uuid:377edc0f-00b9-4481-840f-0fde43c494b9), as part of the Research Project 2023/Q4 (https://cse3000-research-project.github.io/2023/Q4) at the TU Delft.
 
+For the state of the repository as it was at the end of the research project, see the tag `research-project`.
+
 # Linux
 ## Prerequisites
 - CMake
 - Python (see requirements.txt)
+
+## Preparing data
+```
+cd data
+./fetch.py
+./clean.py
+./binarize.py
+```
 
 ## Running experiments
 Expects the following repositories to be checked out in the parent directory:
@@ -89,11 +99,14 @@ module load py-pip
 ```
 Install python packages as in requirements.txt, make sure pandas is compatible with numpy (use 1.3.4), copy experiments folder to machine, change email/account in runner.py and run `./runner.py --all`.
 
-## Fix library and include path
+## Fix library and include path for OSRT
 Remove the stdin check from main.cpp.
 Add the include path of libgmp module (hint: find with echo $LD_LIBRARY_PATH) to `Makefile.am`
-`export LIBRARY_PATH=$LIBRARY_PATH:$LD_LIBRARY_PATH`
-`automake --add-missing`
-`./autobuild --configure --force`
-`./configure`
-`make gosdt`, not `./autobuild --build`
+
+```sh
+export LIBRARY_PATH=$LIBRARY_PATH:$LD_LIBRARY_PATH
+automake --add-missing
+./autobuild --configure --force
+./configure
+make gosdt` (, not `./autobuild --build)
+```
