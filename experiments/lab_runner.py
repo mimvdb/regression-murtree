@@ -49,7 +49,14 @@ def add_run(experiment: Experiment, chunk: List, id: int):
 
     run.add_command(
         f"sync_runner",
-        [sys.executable, str(SCRIPT_DIR / "sync_runner.py"), "--in-file", chunk_path, "--out-file", results_path],
+        [
+            sys.executable,
+            str(SCRIPT_DIR / "sync_runner.py"),
+            "--in-file",
+            chunk_path,
+            "--out-file",
+            results_path,
+        ],
     )
     run.set_property("id", [id_str])  # id is a required unique attribute
 
