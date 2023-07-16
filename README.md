@@ -24,11 +24,12 @@ Expects the following repositories to be checked out in the parent directory:
 
 1. Build OSRT with `./autobuild --install` after installing dependencies `sudo apt-get install libboost-dev libboost-all-dev libgmp-dev libgmp10 ocl-icd-opencl-dev libtbb-dev` and `automake --add-missing`
 2. Build streed2 by following the linux instructions in the README
-3. Get the datasets in the correct format by running `python prepare_data.py`
-4. Run `python experiments.py` to run the experiments
-5. Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`
+3. Prepare datasets ...
+4. Run `python setup_scalability.py` to intialize the experiment
+5. Run `python lab_runner.py` to run the experiments with multiple processes or on DelftBlue, or run `python sync_runner.py` to run single-threaded.
+6. ~~Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`~~
 
-# Windows (may be outdated)
+# Windows (outdated)
 ## Prerequisites
 - Python (3.11.3)
   - seaborn (matplotlib, numpy)
