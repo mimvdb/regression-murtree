@@ -27,7 +27,8 @@ Expects the following repositories to be checked out in the parent directory:
 3. Prepare datasets ...
 4. Run `python setup_scalability.py` to intialize the experiment
 5. Run `python lab_runner.py` to run the experiments with multiple processes or on DelftBlue, or run `python sync_runner.py` to run single-threaded.
-6. ~~Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`~~
+6. (If lab_runner was used) Run `python lab_aggregate.py` to aggregate the results from all processes in to a single csv.
+7. ~~Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`~~
 
 # Windows (outdated)
 ## Prerequisites
