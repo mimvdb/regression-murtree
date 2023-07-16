@@ -9,6 +9,8 @@ experiments/old/osrt_config.tmp.json
 experiments/old/osrt_model.json
 experiments/experiments.json
 experiments/results.csv
+experiments/experiment
+experiments/tmp
 __pycache__
 build/**
 !.gitkeep

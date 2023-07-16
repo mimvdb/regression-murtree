@@ -59,9 +59,12 @@ def run_experiments(experiments: List):
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
-        result["train_data"] = e["train_data"]
-        result["test_data"] = e["test_data"]
         result["complexity_penalty"] = e["complexity_penalty"]
+
+        # Save filename excuding .csv
+        result["train_data"] = Path(e["train_data"]).name[:-4]
+        result["test_data"] = Path(e["test_data"]).name[:-4]
+
         results.append(result)
     return results
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import os
 import sys
+import math
 from typing import List
 
 from lab.environments import LocalEnvironment
@@ -41,7 +42,7 @@ def add_run(experiment: Experiment, chunk: List, id: int):
     id_str = f"sync_runner_{id}"
 
     chunk_path = SCRIPT_DIR / "tmp" / "chunks" / f"{id_str}.json"
-    results_path = SCRIPT_DIR / "tmp" / "results" / f"{id_str}.json"
+    results_path = SCRIPT_DIR / "tmp" / "results" / f"{id_str}.csv"
     os.makedirs(chunk_path.parent.resolve(), exist_ok=True)
     os.makedirs(results_path.parent.resolve(), exist_ok=True)
     with open(chunk_path, "w") as chunk_file:
@@ -67,15 +68,17 @@ def make_chunks(n: int, l: List):
 
 
 def add_runs(experiment: Experiment, experiments: List):
-    chunks = make_chunks(50, experiments)
-    for i in len(chunks):
+    n = len(experiments)
+    chunk_size = min([50, math.ceil(n / 8)])
+    chunks = make_chunks(chunk_size, experiments)
+    for i in range(len(chunks)):
         add_run(experiment, chunks[i], i)
 
 
 if __name__ == "__main__":
     env = (
-        LocalEnvironment(processes=1)
-        if False
+        LocalEnvironment()
+        if True
         else DelftBlueEnvironment(
             "",
             "",
