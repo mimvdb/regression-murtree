@@ -64,7 +64,7 @@ def parse_output(content, timeout: int, model_output_path, train_data, test_data
     return props
 
 
-def run_osrt(exe, timeout, depth, train_data, test_data, cp):
+def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
     with tempfile.TemporaryDirectory() as temp_dir:
         dir_path = Path(temp_dir)
         model_output_path = dir_path / "model.json"

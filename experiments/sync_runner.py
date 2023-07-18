@@ -38,6 +38,7 @@ def run_experiments(experiments: List):
                 e["train_data"],
                 e["test_data"],
                 e["complexity_penalty"],
+                e["tune"],
                 e["use_kmeans"],
                 e["use_task_bound"],
                 e["use_lower_bound"],
@@ -54,6 +55,7 @@ def run_experiments(experiments: List):
                 e["train_data"],
                 e["test_data"],
                 e["complexity_penalty"],
+                e["tune"],
             )
             result["method"] = "osrt"
 

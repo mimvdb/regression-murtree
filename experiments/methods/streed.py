@@ -49,6 +49,7 @@ def run_streed(
     train_data,
     test_data,
     cp,
+    tune,
     use_kmeans,
     use_task_bound,
     use_lower_bound,

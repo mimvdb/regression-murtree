@@ -7,12 +7,13 @@ import numpy as np
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
+
 def clean_all(raw_dir, clean_dir):
     with open(raw_dir / "info.json", "r") as info_json:
         infos = json.load(info_json)
 
     for info in infos:
-        frame = pd.read_csv(raw_dir / (info['filename'] + ".csv"))
+        frame = pd.read_csv(raw_dir / (info["filename"] + ".csv"))
 
         removed_cols = []
         categorized_cols = []
@@ -31,12 +32,15 @@ def clean_all(raw_dir, clean_dir):
         info["removed_cols"] = removed_cols
         info["categorized_cols"] = categorized_cols
 
-        frame.dropna(inplace=True) # Drop NA rows after removing columns
+        frame.dropna(
+            axis="columns", thresh=len(frame) / 2, inplace=True
+        )  # Drop column if missing > 50%
+        frame.dropna(inplace=True)  # Drop NA rows after removing columns
         info["instances_cleaned"] = frame.shape[0]
         info["features_cleaned"] = frame.shape[1]
 
         frame.to_csv(clean_dir / (info["filename"] + ".csv"), header=True, index=False)
-    
+
     with open(clean_dir / "info.json", "w") as info_json:
         json.dump(infos, info_json, indent=4)
 

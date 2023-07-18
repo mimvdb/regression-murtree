@@ -1,11 +1,14 @@
 contourpy==1.0.7
 cycler==0.11.0
+Cython==0.29.35
+et-xmlfile==1.1.0
 fonttools==4.39.4
 joblib==1.2.0
 kiwisolver==1.4.4
 lab==7.3
 matplotlib==3.7.1
 numpy==1.24.3
+openpyxl==3.1.2
 packaging==23.1
 pandas==2.0.2
 Pillow==9.5.0

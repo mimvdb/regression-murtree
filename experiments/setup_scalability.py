@@ -2,13 +2,9 @@
 # creates the datasets and experiment file for running the scalability experiments
 
 from pathlib import Path
-import csv
 import json
-import os
-import sys
 import argparse
 import random
-from typing import List
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
@@ -29,6 +25,7 @@ def generate_experiments():
                     SCRIPT_DIR / "old" / "data" / "streed" / "airfoil.csv"
                 ),
                 "complexity_penalty": 0.0001,
+                "tune": False,
                 "use_kmeans": 1,
                 "use_task_bound": 1,
                 "use_lower_bound": 1,
@@ -41,6 +38,7 @@ def generate_experiments():
                 "train_data": str(SCRIPT_DIR / "old" / "data" / "osrt" / "airfoil.csv"),
                 "test_data": str(SCRIPT_DIR / "old" / "data" / "osrt" / "airfoil.csv"),
                 "complexity_penalty": 0.0001,
+                "tune": False,
             }
             experiments.append(streed)
             experiments.append(osrt)
