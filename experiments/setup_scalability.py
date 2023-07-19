@@ -40,8 +40,21 @@ def generate_experiments():
                 "complexity_penalty": 0.0001,
                 "tune": False,
             }
+            ort = {
+                "method": "ort",
+                "timeout": 60,
+                "depth": depth,
+                "train_data": str(SCRIPT_DIR / "old" / "data" / "streed" / "airfoil.csv"), # TODO switch to continuous data!
+                "test_data": str(SCRIPT_DIR / "old" / "data" / "streed" / "airfoil.csv"),  # TODO switch to continuous data!
+                "complexity_penalty": 0.0001,
+                "linear": False,
+                "lasso_penalty": 0,
+                "metric": "MAE"
+            }
+            
             experiments.append(streed)
             experiments.append(osrt)
+            experiments.append(ort)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

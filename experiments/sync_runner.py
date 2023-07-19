@@ -3,6 +3,7 @@
 
 from methods.streed import run_streed
 from methods.osrt import run_osrt
+from methods.ort import run_ort
 from pathlib import Path
 import csv
 import json
@@ -58,6 +59,18 @@ def run_experiments(experiments: List):
                 e["tune"],
             )
             result["method"] = "osrt"
+        elif e["method"] == "ort":
+            result = run_ort(
+                e["timeout"],
+                e["depth"],
+                e["train_data"],
+                e["test_data"],
+                e["complexity_penalty"],
+                e["linear"],
+                e["lasso_penalty"],
+                e["metric"]
+            )
+            result["method"] = f'ort_l{e["linear"]}_metric{e["metric"]}'
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
