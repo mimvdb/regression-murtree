@@ -44,6 +44,11 @@ def get_bytes(url):
 
     return BytesIO(result)
 
+def typecast_float(value):
+    try:
+        return float(value.replace(',', '.'))
+    except:
+        return value
 
 def fetch_auto_mpg():
     url = "https://archive.ics.uci.edu/static/public/9/auto+mpg.zip"
@@ -123,11 +128,19 @@ def fetch_optical():
 def fetch_real_estate():
     url = "https://archive.ics.uci.edu/static/public/477/real+estate+valuation+data+set.zip"
     zipfile = ZipFile(get_bytes(url))
-    df = pd.read_excel(
-        zipfile.open("Real estate valuation data set.xlsx"),
-        decimal=",",
-        header=0,
-    )
+    try:
+        df = pd.read_excel(
+            zipfile.open("Real estate valuation data set.xlsx"),
+            decimal=",",
+            header=0,
+        )
+    except:
+        df = pd.read_excel(
+            zipfile.open("Real estate valuation data set.xlsx"),
+            converters = {col: typecast_float for col in 
+                ["X3 distance to the nearest MRT station", "X5 latitude", "X6 longitude", "Y house price of unit area"]},
+            header=0,
+        )
     df.drop(columns=["No"], inplace=True)  # Row numbering
     label_col = df.pop("Y house price of unit area")
     df.insert(0, label_col.name, label_col)  # Bring label to front
@@ -197,11 +210,19 @@ def fetch_yacht():
 def fetch_energy_heat():
     url = "https://archive.ics.uci.edu/static/public/242/energy+efficiency.zip"
     zipfile = ZipFile(get_bytes(url))
-    df = pd.read_excel(
-        zipfile.open("ENB2012_data.xlsx"),
-        decimal=",",
-        header=0,
-    )
+    try:
+        df = pd.read_excel(
+            zipfile.open("ENB2012_data.xlsx"),
+            decimal=",",
+            header=0,
+        )
+    except:
+        df = pd.read_excel(
+            zipfile.open("ENB2012_data.xlsx"),
+            converters = {col: typecast_float for col in 
+                ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]},
+            header=0,
+        )
     df.drop(columns=["Y2"], inplace=True)  # Drop cooling load label
     label_col = df.pop("Y1")  # Heating load
     df.insert(0, label_col.name, label_col)  # Bring label to front
@@ -211,11 +232,20 @@ def fetch_energy_heat():
 def fetch_energy_cool():
     url = "https://archive.ics.uci.edu/static/public/242/energy+efficiency.zip"
     zipfile = ZipFile(get_bytes(url))
-    df = pd.read_excel(
-        zipfile.open("ENB2012_data.xlsx"),
-        decimal=",",
-        header=0,
-    )
+    try:
+        df = pd.read_excel(
+            zipfile.open("ENB2012_data.xlsx"),
+            decimal=",",
+            header=0,
+        )
+    except:
+        df = pd.read_excel(
+            zipfile.open("ENB2012_data.xlsx"),
+            converters = {col: typecast_float for col in 
+                ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]},
+            header=0,
+        )
+
     df.drop(columns=["Y1"], inplace=True)  # Drop heating load label
     label_col = df.pop("Y2")  # Cooling load
     df.insert(0, label_col.name, label_col)  # Bring label to front
@@ -290,6 +320,8 @@ datasets = [
 # Fetch and save all datasets, the first column is the label
 def save_all(dir):
     infos = []
+
+    if not dir.exists(): dir.mkdir(exist_ok=True)
 
     for ds in datasets:
         info = {"name": ds["name"], "filename": ds["filename"]}

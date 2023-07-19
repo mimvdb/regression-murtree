@@ -9,6 +9,8 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def clean_all(raw_dir, clean_dir):
+    if not clean_dir.exists(): clean_dir.mkdir(exist_ok=True)
+    
     with open(raw_dir / "info.json", "r") as info_json:
         infos = json.load(info_json)
 

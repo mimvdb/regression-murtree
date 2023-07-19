@@ -10,6 +10,8 @@ BINS = 5
 
 
 def binarize_all(clean_dir, bin_dir):
+    if not bin_dir.exists(): bin_dir.mkdir(exist_ok=True)
+
     with open(clean_dir / "info.json", "r") as info_json:
         infos = json.load(info_json)
 
@@ -39,6 +41,8 @@ def binarize_all(clean_dir, bin_dir):
             binarized.append(series_name)
 
         info["bins"] = list(map(lambda a: a.tolist(), discretizer.bin_edges_))
+
+        frame = frame.T.drop_duplicates().T # Drop duplicate columns
 
         info["binarized"] = binarized
         info["instances_binarized"] = frame.shape[0]
