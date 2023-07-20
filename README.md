@@ -7,6 +7,7 @@ For the state of the repository as it was at the end of the research project, se
 ## Prerequisites
 - CMake
 - Python (see requirements.txt)
+- InterpretableAI (https://docs.interpretable.ai/stable/IAI-Python/installation/#Python-Auto-Install after installing python package)
 
 ## Preparing data
 ```

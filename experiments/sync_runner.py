@@ -4,11 +4,10 @@
 from methods.streed import run_streed
 from methods.osrt import run_osrt
 from methods.ort import run_ort
+from methods.iai import run_iai
 from pathlib import Path
 import csv
 import json
-import os
-import sys
 import argparse
 from typing import List
 
