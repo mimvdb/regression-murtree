@@ -1,7 +1,3 @@
-import re
-import subprocess
-import sys
-
 import pandas as pd
 import numpy as np
 from gurobipy import Model, quicksum, GRB
@@ -9,12 +5,13 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import math
 import time
+import traceback
 
 # MIP model from 
 # Bertsimas, Dimitris, and Jack Dunn. "Optimal classification trees." Machine Learning 106 (2017): 1039-1082.
 # Dunn, Jack William. Optimal trees for prediction and prescription. Diss. Massachusetts Institute of Technology, 2018.
 # Implementation by Jacobus G. M van der Linden
-def run_ort(
+def _run_ort(
     time_limit,     # Time limit in seconds
     depth,          # maximum depth of the tree. D=0 is a single leaf node. D=1 is one branching node with two leaf nodes. Etc.
     train_data,     # Path to the training data (csv)
@@ -175,11 +172,7 @@ def run_ort(
     else:
         model.setObjective((quicksum(L) / total_train_var + cp * C ), GRB.MINIMIZE)
 
-    try:
-        model.optimize()
-    except Exception as exp:
-        print(exp.stdout.decode(), file=sys.stderr, flush=True)
-        return {"time": -1, "train_mse": -1, "test_mse": -1, "leaves": -1, "terminal_calls": -1}
+    model.optimize()
 
     duration = time.time() - start_time
 
@@ -190,44 +183,45 @@ def run_ort(
             print("MIP gap: ", gap * 100)
         return {"time": time_limit + 1, "train_mse": -1, "test_mse": -1, "leaves": -1, "terminal_calls": -1}
 
-    try:
-        yhat = pd.Series(model.getAttr("X", f))
-        zs = model.getAttr("X", z)
-        zs = pd.DataFrame({"ix": i, "leaf": j, 'value': z[i,j].X} for (i,j) in zs)
-        if verbose:
-            for t in leaf_nodes:
-                print("Leaf ", t, ": ", int(sum(zs[zs["leaf"] == t]["value"])), " instances")
+    yhat = pd.Series(model.getAttr("X", f))
+    zs = model.getAttr("X", z)
+    zs = pd.DataFrame({"ix": i, "leaf": j, 'value': z[i,j].X} for (i,j) in zs)
+    if verbose:
+        for t in leaf_nodes:
+            print("Leaf ", t, ": ", int(sum(zs[zs["leaf"] == t]["value"])), " instances")
 
-        n_branching_nodes = sum([d[i].X for i in branching_nodes])
+    n_branching_nodes = sum([d[i].X for i in branching_nodes])
 
-        train_mse = mean_squared_error(train_y, yhat)
-        if verbose:
-            print("\nTrain MSE: ", train_mse)
-            print("Train R^2: ", 1 - train_mse / total_train_var)
+    train_mse = mean_squared_error(train_y, yhat)
+    if verbose:
+        print("\nTrain MSE: ", train_mse)
+        print("Train R^2: ", 1 - train_mse / total_train_var)
 
-        ytest_hat = []
-        for i in _test_X.index:
-            t = 1
-            while not t in leaf_nodes:
-                if sum([a[t, p].X * test_X[i, p] for p in features]) <= b[t].X:
-                    t *= 2
-                else:
-                    t = t * 2 + 1
-            if linear_model:
-                ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
+    ytest_hat = []
+    for i in _test_X.index:
+        t = 1
+        while not t in leaf_nodes:
+            if sum([a[t, p].X * test_X[i, p] for p in features]) <= b[t].X:
+                t *= 2
             else:
-                ytest_hat.append(b0[t].X)
-        ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
+                t = t * 2 + 1
+        if linear_model:
+            ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
+        else:
+            ytest_hat.append(b0[t].X)
+    ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
 
-        test_mse = mean_squared_error(test_y, ytest_hat)
-        if verbose:
-            print("\nTest MSE: ", test_mse)
-            print("Test R^2: ", 1 - test_mse / total_test_var)
+    test_mse = mean_squared_error(test_y, ytest_hat)
+    if verbose:
+        print("\nTest MSE: ", test_mse)
+        print("Test R^2: ", 1 - test_mse / total_test_var)
 
-        return {"time": duration, "train_mse": train_mse, "test_mse": test_mse, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
+    return {"time": duration, "train_mse": train_mse, "test_mse": test_mse, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
+
     
-    except Exception as exp:
-        print(exp.stdout.decode(), file=sys.stderr, flush=True)
+def run_ort(*args, **kwargs):
+    try:
+        _run_ort(*args, **kwargs)
+    except Exception:
+        traceback.print_exc()
         return {"time": -1, "train_mse": -1, "test_mse": -1, "leaves": -1, "terminal_calls": -1}
-
-    
