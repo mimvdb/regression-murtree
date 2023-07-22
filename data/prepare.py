@@ -22,9 +22,8 @@ def prepare_all(bin_dir: Path, prep_dir: Path):
     for info in infos:
         frame = pd.read_csv(bin_dir / (info['filename'] + ".csv"))
 
-        n_cont = frame.shape[1] - 1 - info["features_binarized"] # TODO wrong, features_binarized is total
-        X_cont = frame.iloc[:,1:1+n_cont]
-        X_bin = frame.iloc[:,1+n_cont:n_cont]
+        X_cont = frame.loc[:,info["continuous_cols"]]
+        X_bin = frame.loc[:,info["binary_cols"]]
         y = frame.iloc[:,0]
 
         osrt_frame = pd.concat([X_bin, y], axis="columns")

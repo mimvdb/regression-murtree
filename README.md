@@ -6,32 +6,32 @@ For the state of the repository as it was at the end of the research project, se
 # Linux
 ## Prerequisites
 - CMake
-- Python (see requirements.txt)
+- Python (`pip install -r requirements.txt`)
 - InterpretableAI (https://docs.interpretable.ai/stable/IAI-Python/installation/#Python-Auto-Install after installing python package)
 
 ## Preparing data
-```
+```sh
 cd data
-./fetch.py
-./clean.py
-./binarize.py
+./fetch.py # Fetch datasets
+./clean.py # Clean datasets to not contain missing values and only have numeric features
+./binarize.py # Create binary features from continuous features
+./prepare.py # Create train/test splits in all required formats
 ```
 
 ## Running experiments
 Expects the following repositories to be checked out in the parent directory:
 - `../optimal-sparse-regression-tree-public` (https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
-- `../regression-tree-benchmark` (https://github.com/ruizhang1996/regression-tree-benchmark)
 - `../streed2` (not published at this time)
 
 1. Build OSRT with `./autobuild --install` after installing dependencies `sudo apt-get install libboost-dev libboost-all-dev libgmp-dev libgmp10 ocl-icd-opencl-dev libtbb-dev` and `automake --add-missing`
 2. Build streed2 by following the linux instructions in the README
-3. Prepare datasets ...
+3. Prepare datasets (See above)
 4. Run `python setup_scalability.py` to intialize the experiment
 5. Run `python lab_runner.py` to run the experiments with multiple processes or on DelftBlue, or run `python sync_runner.py` to run single-threaded.
 6. (If lab_runner was used) Run `python lab_aggregate.py` to aggregate the results from all processes in to a single csv.
 7. ~~Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`~~
 
-# Windows (outdated)
+# Windows (outdated, keep for OSRT windows patch instructions)
 ## Prerequisites
 - Python (3.11.3)
   - seaborn (matplotlib, numpy)
