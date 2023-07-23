@@ -23,54 +23,21 @@ Expects the following repositories to be checked out in the parent directory:
 - `../optimal-sparse-regression-tree-public` (https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
 - `../streed2` (not published at this time)
 
-1. Build OSRT with `./autobuild --install` after installing dependencies `sudo apt-get install libboost-dev libboost-all-dev libgmp-dev libgmp10 ocl-icd-opencl-dev libtbb-dev` and `automake --add-missing`
+1. Build OSRT after installing dependencies `sudo apt-get install libgmp-dev libtbb-dev` with
+```sh
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
 2. Build streed2 by following the linux instructions in the README
 3. Prepare datasets (See above)
 4. Run `python setup_scalability.py` to intialize the experiment
 5. Run `python lab_runner.py` to run the experiments with multiple processes or on DelftBlue, or run `python sync_runner.py` to run single-threaded.
 6. (If lab_runner was used) Run `python lab_aggregate.py` to aggregate the results from all processes in to a single csv.
-7. ~~Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.[png,svg]`~~
 
-# Windows (outdated, keep for OSRT windows patch instructions)
-## Prerequisites
-- Python (3.11.3)
-  - seaborn (matplotlib, numpy)
-  - scikit-learn
-- Visual Studio (2022) with C++ workload
-- MSYS2
-
-## Running experiments
-Expects the following repositories to be checked out in the parent directory:
-- `../optimal-sparse-regression-tree-public` (https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
-- `../regression-tree-benchmark` (https://github.com/ruizhang1996/regression-tree-benchmark)
-- `../streed-regression` (not published at this time)
-
-1. Build OSRT as described below
-2. Build streed2 using Visual Studio in release mode (check that configuration is Release, not RelWithDebInfo) (executable expected at `../streed2/out/build/x64-Release/STREED`)
-3. Get the datasets in the correct format by running `python prepare_data.py`
-4. Update the path to MSYS2 bin folder in `experiments/experiments.py`, e.g. `"C:\\msys64\\ucrt64\\bin\\;"`
-5. Run `python experiments.py` to run the experiments
-6. Run `python plot_experiments.py` to plot the results, see the results in `experiments/figures/**/*.png`
-
-## Building OSRT
-0. Install MSYS2 with the following packages
-```
-$ pacman -Qe
-base 2022.06-1
-filesystem 2023.02.07-1
-mingw-w64-ucrt-x86_64-autotools 2022.01.16-1
-mingw-w64-ucrt-x86_64-boost 1.81.0-6
-mingw-w64-ucrt-x86_64-gcc 12.2.0-10
-mingw-w64-ucrt-x86_64-make 4.4-2
-mingw-w64-ucrt-x86_64-opencl-icd 2023.04.17-1
-mingw-w64-ucrt-x86_64-python 3.10.11-1
-mingw-w64-ucrt-x86_64-tbb 2021.9.0-1
-msys2-runtime 3.4.6-2
-```
-1. Apply the osrt patch for MSYS2 compatibility `git apply osrt.patch` on https://github.com/ruizhang1996/optimal-sparse-regression-tree-public (commit 4803498)
-2. `./autobuild --install`
-3. Test with `gosdt experiments/datasets/airfoil/airfoil.csv experiments/configurations/config.json >> output.json`
-
+## Plotting experiments
+After preparing the data/running the experiments, run any of the plot scripts `python plot_*.py`.
 
 # Delftblue
 
@@ -84,7 +51,6 @@ module load 2022r2
 ```
 For osrt:
 ```bash
-module load boost
 module load gmp
 module load intel/oneapi-all
 ```

@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from gurobipy import Model, quicksum, GRB
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+from methods.misc.util import load_data_continuous
 import math
 import time
 import traceback
@@ -25,23 +26,10 @@ def _run_ort(
     assert(tune == False)
     verbose = True
 
-    csv_sep = " "      # Column seperator in files.   Change if needed
-    csv_header = None   # Header paramater for pandas. Change if needed
-    label_column = "0"  # Name of the label column.    Change if needed
-
-    train_df = pd.read_csv(train_data, sep=csv_sep, header=csv_header)
-    test_df = pd.read_csv(test_data, sep=csv_sep, header=csv_header)
+    _train_X, train_y, train_info = load_data_continuous(train_data)
+    _test_X, test_y, test_info = load_data_continuous(test_data)
 
     start_time = time.time() # Start timer after reading data
-
-    if train_df.columns.dtype == np.int64:
-        label_column = int(label_column)
-
-    # Get X and y     
-    _train_X = train_df.drop(columns=[label_column])
-    train_y = train_df[label_column]
-    _test_X = test_df.drop(columns=[label_column])
-    test_y = test_df[label_column]
     
     # Normalize X
     scaler = MinMaxScaler()
@@ -181,7 +169,7 @@ def _run_ort(
         if verbose:
             print("Time out")
             print("MIP gap: ", gap * 100)
-        return {"time": time_limit + 1, "train_mse": -1, "test_mse": -1, "leaves": -1, "terminal_calls": -1}
+        return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
 
     yhat = pd.Series(model.getAttr("X", f))
     zs = model.getAttr("X", z)
@@ -192,10 +180,10 @@ def _run_ort(
 
     n_branching_nodes = sum([d[i].X for i in branching_nodes])
 
-    train_mse = mean_squared_error(train_y, yhat)
+    train_r2 = r2_score(train_y, yhat)
     if verbose:
-        print("\nTrain MSE: ", train_mse)
-        print("Train R^2: ", 1 - train_mse / total_train_var)
+        print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
+        print("Train R^2: ", train_r2)
 
     ytest_hat = []
     for i in _test_X.index:
@@ -211,12 +199,12 @@ def _run_ort(
             ytest_hat.append(b0[t].X)
     ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
 
-    test_mse = mean_squared_error(test_y, ytest_hat)
+    test_r2 = r2_score(test_y, ytest_hat)
     if verbose:
-        print("\nTest MSE: ", test_mse)
-        print("Test R^2: ", 1 - test_mse / total_test_var)
+        print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
+        print("Test R^2: ", test_r2)
 
-    return {"time": duration, "train_mse": train_mse, "test_mse": test_mse, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
+    return {"time": duration, "train_r2": train_r2, "test_r2": test_r2, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
 
     
 def run_ort(*args, **kwargs):
@@ -224,4 +212,4 @@ def run_ort(*args, **kwargs):
         _run_ort(*args, **kwargs)
     except Exception:
         traceback.print_exc()
-        return {"time": -1, "train_mse": -1, "test_mse": -1, "leaves": -1, "terminal_calls": -1}
+        return {"time": -1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}

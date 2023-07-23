@@ -2,18 +2,12 @@ import os
 
 os.environ["IAI_DISABLE_COMPILED_MODULES"] = "True"
 from interpretableai import iai
-import pandas as pd
-import numpy as np
+from methods.misc.util import load_data_continuous
 
 
 def run_iai(timeout, depth, train_data, test_data):
-    train_df = pd.read_csv(train_data, sep=" ", header=None)
-    test_df = pd.read_csv(test_data, sep=" ", header=None)
-
-    X_train = train_df.iloc[:, 1:]
-    y_train = train_df.iloc[:, 0]
-    X_test = test_df.iloc[:, 1:]
-    y_test = test_df.iloc[:, 0]
+    X_train, y_train, train_info = load_data_continuous(train_data)
+    X_test, y_test, test_info = load_data_continuous(test_data)
 
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(max_depth=depth),
@@ -23,21 +17,16 @@ def run_iai(timeout, depth, train_data, test_data):
     reg = grid.get_learner()
     return {
         "time": -1,
-        "train_mse": -1,
-        "test_mse": -1,
+        "train_r2": -1,
+        "test_r2": -1,
         "leaves": -1,
         "terminal_calls": -1,
     }
 
 
 def run_iai_l(timeout, depth, train_data, test_data):
-    train_df = pd.read_csv(train_data, sep=" ", header=None)
-    test_df = pd.read_csv(test_data, sep=" ", header=None)
-
-    X_train = train_df.iloc[:, 1:]
-    y_train = train_df.iloc[:, 0]
-    X_test = test_df.iloc[:, 1:]
-    y_test = test_df.iloc[:, 0]
+    X_train, y_train, train_info = load_data_continuous(train_data)
+    X_test, y_test, test_info = load_data_continuous(test_data)
 
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(
@@ -76,8 +65,8 @@ def run_iai_l(timeout, depth, train_data, test_data):
     reg = grid.get_learner()
     return {
         "time": -1,
-        "train_mse": -1,
-        "test_mse": -1,
+        "train_r2": -1,
+        "test_r2": -1,
         "leaves": -1,
         "terminal_calls": -1,
     }

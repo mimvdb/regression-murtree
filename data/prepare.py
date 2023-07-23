@@ -34,6 +34,7 @@ def save_all_formats(dir, info, frame, filename):
 
     with open(dir / (filename + ".json"), "w") as data_info:
         json.dump({
+            "binary_features": len(info["binary_cols"]),
             "continuous_features": len(info["continuous_cols"]),
             "mean_squared_error": mean_squared_error(y, np.full(len(y), np.mean(y))),
             "instances": len(y)

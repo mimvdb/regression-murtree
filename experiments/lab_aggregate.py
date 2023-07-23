@@ -37,8 +37,8 @@ if __name__ == "__main__":
         "test_data",
         "complexity_penalty",
         "time",
-        "train_mse",
-        "test_mse",
+        "train_r2",
+        "test_r2",
         "leaves",
         "terminal_calls",
     ]

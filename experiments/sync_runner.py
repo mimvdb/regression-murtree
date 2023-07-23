@@ -1,10 +1,11 @@
 #! /usr/bin/env python
 # Runs a set of experiments in the specified file
 
+from methods.cart import run_cart
 from methods.streed import run_streed
 from methods.osrt import run_osrt
 from methods.ort import run_ort
-from methods.iai import run_iai
+# from methods.iai import run_iai
 from pathlib import Path
 import csv
 import json
@@ -18,8 +19,8 @@ OSRT_PATH = (
     / ".."
     / "optimal-sparse-regression-tree-public"
     / "build"
-    / "gosdt"
-)  # SCRIPT_DIR / "gosdt"
+    / "osrt"
+)  # SCRIPT_DIR / "osrt"
 STREED_PATH = (
     SCRIPT_DIR / ".." / ".." / "streed2" / "build" / "STREED"
 )  # SCRIPT_DIR / "STREED"
@@ -70,14 +71,22 @@ def run_experiments(experiments: List):
                 e["metric"]
             )
             result["method"] = f'ort_l{e["linear"]}_metric{e["metric"]}'
+        elif e["method"] == "cart":
+            result = run_cart(
+                e["timeout"],
+                e["depth"],
+                e["train_data"],
+                e["test_data"]
+            )
+            result["method"] = "cart"
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
-        result["complexity_penalty"] = e["complexity_penalty"]
-
-        # Save filename excuding .csv
-        result["train_data"] = Path(e["train_data"]).name[:-4]
-        result["test_data"] = Path(e["test_data"]).name[:-4]
+        result["train_data"] = e["train_data"]
+        result["test_data"] = e["test_data"]
+        
+        # Only note down complexity penalty to disambiguate runs, might be different than actual e.g. for hypertuning runs
+        result["complexity_penalty"] = e["complexity_penalty"] if "complexity_penalty" in e else 0.0
 
         results.append(result)
     return results
@@ -104,8 +113,8 @@ if __name__ == "__main__":
         "test_data",
         "complexity_penalty",
         "time",
-        "train_mse",
-        "test_mse",
+        "train_r2",
+        "test_r2",
         "leaves",
         "terminal_calls",
     ]
