@@ -5,6 +5,7 @@ from methods.cart import run_cart
 from methods.streed import run_streed
 from methods.osrt import run_osrt
 from methods.ort import run_ort
+from methods.dtip import run_dtip
 # from methods.iai import run_iai
 from pathlib import Path
 import csv
@@ -71,6 +72,14 @@ def run_experiments(experiments: List):
                 e["metric"]
             )
             result["method"] = f'ort_l{e["linear"]}_metric{e["metric"]}'
+        elif e["method"] == "dtip":
+            result = run_dtip(
+                e["timeout"],
+                e["depth"],
+                e["train_data"],
+                e["test_data"]
+            )
+            result["method"] = "dtip"
         elif e["method"] == "cart":
             result = run_cart(
                 e["timeout"],

@@ -47,10 +47,18 @@ def generate_experiments():
                 "lasso_penalty": 0,
                 "metric": "MAE"
             }
+            dtip = {
+                "method": "dtip",
+                "timeout": 60,
+                "depth": depth,
+                "train_data": "airfoil",
+                "test_data": "airfoil"
+            }
             
             experiments.append(streed)
             experiments.append(osrt)
             experiments.append(ort)
+            experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

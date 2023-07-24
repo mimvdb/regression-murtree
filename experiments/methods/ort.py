@@ -28,7 +28,7 @@ def _run_ort(
 
     _train_X, train_y, train_info = load_data_continuous(train_data)
     _test_X, test_y, test_info = load_data_continuous(test_data)
-
+    
     start_time = time.time() # Start timer after reading data
     
     # Normalize X
@@ -209,7 +209,7 @@ def _run_ort(
     
 def run_ort(*args, **kwargs):
     try:
-        _run_ort(*args, **kwargs)
+        return _run_ort(*args, **kwargs)
     except Exception:
         traceback.print_exc()
         return {"time": -1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
