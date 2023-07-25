@@ -3,6 +3,7 @@ from methods.misc.util import load_data_info
 import re
 import subprocess
 import sys
+import os
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 PREFIX_DATA_PWC = SCRIPT_DIR / ".." / ".." / "data" / "prepared" / "streed_pwc"
@@ -68,34 +69,37 @@ def run_streed(
     use_d2,  # TODO: add CLI param to streed to toggle terminal solver
 ):
     try:
-        result = subprocess.check_output(
-            [
-                "timeout",
-                str(timeout),
-                exe,
-                "-task",
-                "cost-complex-regression",
-                "-file",
-                str(PREFIX_DATA_PWC / (train_data + ".csv")),
-                "-test-file",
-                str(PREFIX_DATA_PWC / (test_data + ".csv")),
-                "-max-depth",
-                str(depth),
-                "-max-num-nodes",
-                str(2**depth - 1),
-                "-time",
-                str(timeout + 10),
-                "-use-lower-bound",
-                "1" if use_lower_bound else "0",
-                "-use-task-lower-bound",
-                "1" if use_task_bound else "0",
-                "-regression-bound",
-                "kmeans" if use_kmeans else "equivalent",
-                "-cost-complexity",
-                str(cp),
-            ],
-            timeout=timeout,
-        )
+        
+        command = [
+                    exe,
+                    "-task",
+                    "cost-complex-regression",
+                    "-file",
+                    str(PREFIX_DATA_PWC / (train_data + ".csv")),
+                    "-test-file",
+                    str(PREFIX_DATA_PWC / (test_data + ".csv")),
+                    "-max-depth",
+                    str(depth),
+                    "-max-num-nodes",
+                    str(2**depth - 1),
+                    "-time",
+                    str(timeout + 10),
+                    "-use-lower-bound",
+                    "1" if use_lower_bound else "0",
+                    "-use-task-lower-bound",
+                    "1" if use_task_bound else "0",
+                    "-regression-bound",
+                    "kmeans" if use_kmeans else "equivalent",
+                    "-cost-complexity",
+                    str(cp),
+                ]
+        
+        # Add timeout, if not running on windows
+        # (Windows timeout command is different)
+        if os.name != "nt": 
+            command = ["timeout", str(timeout)] + command
+
+        result = subprocess.check_output(command, timeout=timeout)
         output = result.decode()
         # print(output)
         parsed = parse_output(output, timeout, train_data, test_data)

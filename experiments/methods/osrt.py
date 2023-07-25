@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import subprocess
 import sys
+import os
 from sklearn.metrics import r2_score
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
@@ -77,16 +78,16 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
                 json.dump(config_base, tmp_config_file)
 
         try:
-            result = subprocess.check_output(
-                [
-                    "timeout",
-                    str(timeout),
+            command = [
                     exe,
                     str(PREFIX_DATA / (train_data + ".csv")),
                     config_path,
-                ],
-                timeout=timeout,
-            )
+                ]
+            
+            if os.name != "nt": 
+                command = ["timeout", str(timeout)] + command
+
+            result = subprocess.check_output(command,timeout=timeout)
             output = result.decode()
             # print(output)
             parsed = parse_output(
