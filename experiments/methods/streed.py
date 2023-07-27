@@ -55,7 +55,7 @@ def parse_output(content, timeout, train_data, test_data):
     return props
 
 
-def run_streed(
+def run_streed_pwc(
     exe,
     timeout,
     depth,
@@ -69,36 +69,38 @@ def run_streed(
     use_d2,  # TODO: add CLI param to streed to toggle terminal solver
 ):
     try:
-        
         command = [
-                    exe,
-                    "-task",
-                    "cost-complex-regression",
-                    "-file",
-                    str(PREFIX_DATA_PWC / (train_data + ".csv")),
-                    "-test-file",
-                    str(PREFIX_DATA_PWC / (test_data + ".csv")),
-                    "-max-depth",
-                    str(depth),
-                    "-max-num-nodes",
-                    str(2**depth - 1),
-                    "-time",
-                    str(timeout + 10),
-                    "-use-lower-bound",
-                    "1" if use_lower_bound else "0",
-                    "-use-task-lower-bound",
-                    "1" if use_task_bound else "0",
-                    "-regression-bound",
-                    "kmeans" if use_kmeans else "equivalent",
-                    "-cost-complexity",
-                    str(cp),
-                ]
-        
+            exe,
+            "-task",
+            "cost-complex-regression",
+            "-mode",
+            "hyper" if tune else "direct",
+            "-file",
+            str(PREFIX_DATA_PWC / (train_data + ".csv")),
+            "-test-file",
+            str(PREFIX_DATA_PWC / (test_data + ".csv")),
+            "-max-depth",
+            str(depth),
+            "-max-num-nodes",
+            str(2**depth - 1),
+            "-time",
+            str(timeout + 10),
+            "-use-lower-bound",
+            "1" if use_lower_bound else "0",
+            "-use-task-lower-bound",
+            "1" if use_task_bound else "0",
+            "-regression-bound",
+            "kmeans" if use_kmeans else "equivalent",
+            "-cost-complexity",
+            str(cp),
+        ]
+
         # Add timeout, if not running on windows
         # (Windows timeout command is different)
-        if os.name != "nt": 
+        if os.name != "nt":
             command = ["timeout", str(timeout)] + command
 
+        # print(" ".join(command))
         result = subprocess.check_output(command, timeout=timeout)
         output = result.decode()
         # print(output)
@@ -109,4 +111,59 @@ def run_streed(
         return parse_output("", timeout, train_data, test_data)
     except subprocess.CalledProcessError as e:
         print(e.stdout.decode(), file=sys.stderr, flush=True)
-        return {"time": -1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
+        return {
+            "time": -1,
+            "train_r2": -1,
+            "test_r2": -1,
+            "leaves": -1,
+            "terminal_calls": -1,
+        }
+
+
+def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
+    try:
+        command = [
+            exe,
+            "-task",
+            "piecewise-linear-regression",
+            "-mode",
+            "hyper" if tune else "direct",
+            "-file",
+            str(PREFIX_DATA_PWL / (train_data + ".csv")),
+            "-test-file",
+            str(PREFIX_DATA_PWL / (test_data + ".csv")),
+            "-max-depth",
+            str(depth),
+            "-max-num-nodes",
+            str(2**depth - 1),
+            "-time",
+            str(timeout + 10),
+            "-cost-complexity",
+            str(cp),
+            "-lasso-penalty",
+            str(lasso),
+        ]
+
+        # Add timeout, if not running on windows
+        # (Windows timeout command is different)
+        if os.name != "nt":
+            command = ["timeout", str(timeout)] + command
+
+        print(" ".join(command))
+        result = subprocess.check_output(command, timeout=timeout)
+        output = result.decode()
+        # print(output)
+        parsed = parse_output(output, timeout, train_data, test_data)
+        return parsed
+    except subprocess.TimeoutExpired as e:
+        # print(e.stdout.decode())
+        return parse_output("", timeout, train_data, test_data)
+    except subprocess.CalledProcessError as e:
+        print(e.stdout.decode(), file=sys.stderr, flush=True)
+        return {
+            "time": -1,
+            "train_r2": -1,
+            "test_r2": -1,
+            "leaves": -1,
+            "terminal_calls": -1,
+        }

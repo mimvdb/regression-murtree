@@ -44,11 +44,13 @@ def get_bytes(url):
 
     return BytesIO(result)
 
+
 def typecast_float(value):
     try:
-        return float(value.replace(',', '.'))
+        return float(value.replace(",", "."))
     except:
         return value
+
 
 def fetch_auto_mpg():
     url = "https://archive.ics.uci.edu/static/public/9/auto+mpg.zip"
@@ -137,8 +139,15 @@ def fetch_real_estate():
     except:
         df = pd.read_excel(
             zipfile.open("Real estate valuation data set.xlsx"),
-            converters = {col: typecast_float for col in 
-                ["X3 distance to the nearest MRT station", "X5 latitude", "X6 longitude", "Y house price of unit area"]},
+            converters={
+                col: typecast_float
+                for col in [
+                    "X3 distance to the nearest MRT station",
+                    "X5 latitude",
+                    "X6 longitude",
+                    "Y house price of unit area",
+                ]
+            },
             header=0,
         )
     df.drop(columns=["No"], inplace=True)  # Row numbering
@@ -219,8 +228,10 @@ def fetch_energy_heat():
     except:
         df = pd.read_excel(
             zipfile.open("ENB2012_data.xlsx"),
-            converters = {col: typecast_float for col in 
-                ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]},
+            converters={
+                col: typecast_float
+                for col in ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]
+            },
             header=0,
         )
     df.drop(columns=["Y2"], inplace=True)  # Drop cooling load label
@@ -241,8 +252,10 @@ def fetch_energy_cool():
     except:
         df = pd.read_excel(
             zipfile.open("ENB2012_data.xlsx"),
-            converters = {col: typecast_float for col in 
-                ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]},
+            converters={
+                col: typecast_float
+                for col in ["X1", "X2", "X3", "X4", "X5", "X7", "Y1", "Y2"]
+            },
             header=0,
         )
 
@@ -272,8 +285,15 @@ def fetch_household():
             "Sub_metering_3": float,
         },
     )
+
+    # Drop sub_meterings, as these may be a proxy for the label
+    df.drop(
+        columns=["Sub_metering_1", "Sub_metering_2", "Sub_metering_3"], inplace=True
+    )
+
+    # Bring label to front
     label_col = df.pop("Global_active_power")
-    df.insert(0, label_col.name, label_col)  # Bring label to front
+    df.insert(0, label_col.name, label_col)
     return df
 
 
@@ -321,7 +341,8 @@ datasets = [
 def save_all(dir):
     infos = []
 
-    if not dir.exists(): dir.mkdir(exist_ok=True)
+    if not dir.exists():
+        dir.mkdir(exist_ok=True)
 
     for ds in datasets:
         info = {"name": ds["name"], "filename": ds["filename"]}

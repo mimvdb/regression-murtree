@@ -2,10 +2,11 @@
 # Runs a set of experiments in the specified file
 
 from methods.cart import run_cart
-from methods.streed import run_streed
+from methods.streed import run_streed_pwc, run_streed_pwl
 from methods.osrt import run_osrt
 from methods.ort import run_ort
 from methods.dtip import run_dtip
+
 # from methods.iai import run_iai
 from pathlib import Path
 import csv
@@ -32,8 +33,8 @@ def run_experiments(experiments: List):
 
     for e in experiments:
         print(e)
-        if e["method"] == "streed":
-            result = run_streed(
+        if e["method"] == "streed_pwc":
+            result = run_streed_pwc(
                 str(STREED_PATH),
                 e["timeout"],
                 e["depth"],
@@ -46,9 +47,23 @@ def run_experiments(experiments: List):
                 e["use_lower_bound"],
                 e["use_d2"],
             )
-            result[
-                "method"
-            ] = f'streed_kmeans{e["use_kmeans"]}_tasklb{e["use_task_bound"]}_lb{e["use_lower_bound"]}_terminal{e["use_d2"]}'
+            result["method"] = "streed_pwc"
+            if not e["tune"]:
+                result[
+                    "method"
+                ] += f'_kmeans{e["use_kmeans"]}_tasklb{e["use_task_bound"]}_lb{e["use_lower_bound"]}_terminal{e["use_d2"]}'
+        elif e["method"] == "streed_pwl":
+            result = run_streed_pwl(
+                str(STREED_PATH),
+                e["timeout"],
+                e["depth"],
+                e["train_data"],
+                e["test_data"],
+                e["complexity_penalty"],
+                e["lasso"],
+                e["tune"],
+            )
+            result["method"] = f"streed_pwl"
         elif e["method"] == "osrt":
             result = run_osrt(
                 str(OSRT_PATH),
@@ -69,33 +84,25 @@ def run_experiments(experiments: List):
                 e["complexity_penalty"],
                 e["linear"],
                 e["lasso_penalty"],
-                e["metric"]
+                e["metric"],
             )
             result["method"] = f'ort_l{e["linear"]}_metric{e["metric"]}'
         elif e["method"] == "dtip":
-            result = run_dtip(
-                e["timeout"],
-                e["depth"],
-                e["train_data"],
-                e["test_data"]
-            )
+            result = run_dtip(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "dtip"
         elif e["method"] == "cart":
-            result = run_cart(
-                e["timeout"],
-                e["depth"],
-                e["train_data"],
-                e["test_data"]
-            )
+            result = run_cart(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "cart"
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
         result["train_data"] = e["train_data"]
         result["test_data"] = e["test_data"]
-        
+
         # Only note down complexity penalty to disambiguate runs, might be different than actual e.g. for hypertuning runs
-        result["complexity_penalty"] = e["complexity_penalty"] if "complexity_penalty" in e else 0.0
+        result["complexity_penalty"] = (
+            e["complexity_penalty"] if "complexity_penalty" in e else 0.0
+        )
 
         results.append(result)
     return results
@@ -128,7 +135,15 @@ if __name__ == "__main__":
         "terminal_calls",
     ]
 
-    results.sort(key=lambda v: (v["method"], v["train_data"], v["test_data"], v["depth"], v["complexity_penalty"]))
+    results.sort(
+        key=lambda v: (
+            v["method"],
+            v["train_data"],
+            v["test_data"],
+            v["depth"],
+            v["complexity_penalty"],
+        )
+    )
 
     with open(args.out_file, "w", newline="") as f:
         writer = csv.writer(f)

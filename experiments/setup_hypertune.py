@@ -7,7 +7,7 @@ import argparse
 import random
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-DEPTH = 5
+DEPTH = 2 # 5
 TIMEOUT = 60
 
 def generate_experiments():
@@ -26,18 +26,28 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
-            streed = {
-                "method": "streed",
+            streed_pwc = {
+                "method": "streed_pwc",
                 "timeout": TIMEOUT,
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
-                "complexity_penalty": 0.0001,
+                "complexity_penalty": 0,
                 "tune": True,
                 "use_kmeans": 1,
                 "use_task_bound": 1,
                 "use_lower_bound": 1,
                 "use_d2": 1,
+            }
+            streed_pwl = {
+                "method": "streed_pwl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": split["train"],
+                "test_data": split["test"],
+                "complexity_penalty": 0,
+                "lasso": 0.999,
+                "tune": True,
             }
             osrt = {
                 "method": "osrt",
@@ -60,8 +70,9 @@ def generate_experiments():
                 "metric": "MAE"
             }
             
-            experiments.append(cart)
-            # experiments.append(streed)
+            # experiments.append(cart)
+            # experiments.append(streed_pwc)
+            experiments.append(streed_pwl)
             # experiments.append(osrt)
             # experiments.append(ort)
 
