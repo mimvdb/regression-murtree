@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import os
+import json
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 PREFIX_DATA_PWC = SCRIPT_DIR / ".." / ".." / "data" / "prepared" / "streed_pwc"
@@ -121,6 +122,10 @@ def run_streed_pwc(
 
 
 def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
+    with open(PREFIX_DATA_PWL / ".." / (train_data + ".json"), "r") as json_file:
+        info = json.load(json_file)
+        continuous_features = info["continuous_features"]
+
     try:
         command = [
             exe,
@@ -142,6 +147,10 @@ def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
             str(cp),
             "-lasso-penalty",
             str(lasso),
+            "-num-extra-cols",
+            str(continuous_features),
+            "-min-leaf-node-size",
+            str(continuous_features)
         ]
 
         # Add timeout, if not running on windows
