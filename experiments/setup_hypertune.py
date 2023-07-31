@@ -77,9 +77,9 @@ def generate_experiments():
                 "metric": "MAE"
             }
             
-            # experiments.append(cart)
+            experiments.append(cart)
             experiments.append(guide)
-            # experiments.append(streed_pwc)
+            experiments.append(streed_pwc)
             # experiments.append(streed_pwl)
             # experiments.append(osrt)
             # experiments.append(ort)
