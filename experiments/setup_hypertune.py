@@ -26,6 +26,13 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
+            guide = {
+                "method": "guide",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": split["train"],
+                "test_data": split["test"],
+            }
             streed_pwc = {
                 "method": "streed_pwc",
                 "timeout": TIMEOUT,
@@ -71,8 +78,9 @@ def generate_experiments():
             }
             
             # experiments.append(cart)
+            experiments.append(guide)
             # experiments.append(streed_pwc)
-            experiments.append(streed_pwl)
+            # experiments.append(streed_pwl)
             # experiments.append(osrt)
             # experiments.append(ort)
 

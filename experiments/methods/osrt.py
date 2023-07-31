@@ -63,6 +63,7 @@ def parse_output(content, timeout: int, model_output_path, train_data, test_data
 
 
 def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
+    if tune: return _hyper(exe, timeout, depth, train_data, test_data)
     with tempfile.TemporaryDirectory() as temp_dir:
         dir_path = Path(temp_dir)
         model_output_path = dir_path / "model.json"
@@ -106,3 +107,14 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
                 "leaves": -1,
                 "terminal_calls": -1,
             }
+
+def _hyper(exe, timeout, depth, train_data, test_data):
+    best = float("-inf")
+    best_run = None
+
+    for cp in [0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001]:
+        run = run_osrt(exe, timeout, depth, train_data, test_data, cp, False)
+        if run["train_r2"] > best:
+            best = run["train_r2"]
+            best_run = run
+    return best_run

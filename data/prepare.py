@@ -32,6 +32,26 @@ def save_all_formats(dir, info, frame, filename):
     streed_pwc_frame.to_csv(streed_pwc_base / (filename + ".csv"), sep=" ", header=False, index=False)
     streed_pwl_frame.to_csv(streed_pwl_base / (filename + ".csv"), sep=" ", header=False, index=False)
 
+    # Reuse STreeD PWL file for GUIDE, since it has continuous features.
+    with open(streed_pwl_base / (filename + ".guide.in"), "w") as guide_file:
+        guide_file.write(f"{filename}.csv\n")
+        guide_file.write(f"NA\n") # cleaned data cannot contain NA, but needs to be given
+        guide_file.write(f"1\n") # rows start at line 1, there is no header
+
+        i = 1
+        guide_file.write(f"{i} label d\n") # first is target label
+        i += 1
+        for col in streed_pwl_frame.iloc[:, 1:]:
+            if col in info["categorized_cols"]:
+                guide_file.write(f"{i} cat{i} b\n") # categorical, can be used in splitting or fitting
+            elif col in info["continuous_cols"]:
+                guide_file.write(f"{i} cont{i} n\n") # numerical, can be used in splitting or fitting
+            elif col in info["binary_cols"]:
+                guide_file.write(f"{i} bin{i} x\n") # excluded, don't use binarized variables
+            else:
+                guide_file.write(f"{i} unknown{i} ERROR\n") # should never happen
+            i += 1
+
     with open(dir / (filename + ".json"), "w") as data_info:
         json.dump({
             "binary_features": len(info["binary_cols"]),

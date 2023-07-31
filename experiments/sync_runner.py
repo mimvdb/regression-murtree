@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # Runs a set of experiments in the specified file
 
+from methods.guide import run_guide
 from methods.cart import run_cart
 from methods.streed import run_streed_pwc, run_streed_pwl
 from methods.osrt import run_osrt
@@ -26,6 +27,7 @@ OSRT_PATH = (
 STREED_PATH = (
     SCRIPT_DIR / ".." / ".." / "streed2" / "build" / "STREED"
 )  # SCRIPT_DIR / "STREED"
+GUIDE_PATH = SCRIPT_DIR / "methods" / "misc" / "guide"
 
 
 def run_experiments(experiments: List):
@@ -93,6 +95,9 @@ def run_experiments(experiments: List):
         elif e["method"] == "cart":
             result = run_cart(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "cart"
+        elif e["method"] == "guide":
+            result = run_guide(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result["method"] = "guide"
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
@@ -105,6 +110,7 @@ def run_experiments(experiments: List):
         )
 
         results.append(result)
+        print(result)
     return results
 
 

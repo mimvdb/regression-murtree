@@ -8,6 +8,7 @@ For the state of the repository as it was at the end of the research project, se
 - CMake
 - Python (`pip install -r requirements.txt`)
 - InterpretableAI (https://docs.interpretable.ai/stable/IAI-Python/installation/#Python-Auto-Install after installing python package)
+- R (for GUIDE) (`sudo apt-get install r-base`)
 
 ## Preparing data
 ```sh
