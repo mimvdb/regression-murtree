@@ -150,7 +150,7 @@ def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
             "-num-extra-cols",
             str(continuous_features),
             "-min-leaf-node-size",
-            str(continuous_features)
+            str(continuous_features*10)
         ]
 
         # Add timeout, if not running on windows
