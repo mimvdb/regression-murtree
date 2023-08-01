@@ -35,7 +35,7 @@ def save_all_formats(dir, info, frame, filename):
     osrt_frame.to_csv(osrt_base / (filename + ".csv"), header=True, index=False)
     streed_pwc_frame.to_csv(streed_pwc_base / (filename + ".csv"), sep=" ", header=False, index=False)
     streed_pwl_frame.to_csv(streed_pwl_base / (filename + ".csv"), sep=" ", header=False, index=False)
-    all_frame.to_csv(streed_pwl_base / (filename + ".csv"), header=True, index=False)
+    all_frame.to_csv(all_base / (filename + ".csv"), header=True, index=False)
 
     # Add GUIDE descriptor file
     with open(all_base / (filename + ".guide.in"), "w") as guide_file:
