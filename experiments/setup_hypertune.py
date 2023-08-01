@@ -76,13 +76,29 @@ def generate_experiments():
                 "lasso_penalty": 0,
                 "metric": "MAE"
             }
+            iai = {
+                "method": "iai",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": split["train"],
+                "test_data": split["test"],
+            }
+            iai_l = {
+                "method": "iai_l",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": split["train"],
+                "test_data": split["test"],
+            }
             
             experiments.append(cart)
             experiments.append(guide)
             experiments.append(streed_pwc)
-            # experiments.append(streed_pwl)
+            experiments.append(streed_pwl)
             # experiments.append(osrt)
             # experiments.append(ort)
+            experiments.append(iai)
+            experiments.append(iai_l)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

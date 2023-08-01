@@ -17,7 +17,7 @@ def modify_script(original_lines, data_path):
     modified_lines = []
     for line in original_lines:
         if line.startswith("newdata <-"):
-            modified_lines.append(f"newdata <- read.csv(\"{data_path}\",header=TRUE,colClasses=\"character\")\n")
+            modified_lines.append(f"newdata <- read.csv(\"{data_path}\",header=FALSE,colClasses=\"character\")\n")
         else:
             modified_lines.append(line)
     modified_lines.append("mse <- mean((as.numeric(newdata$label) - pred)^2)\n")
@@ -25,8 +25,6 @@ def modify_script(original_lines, data_path):
     return modified_lines
 
 def parse_output(content, timeout: int, model_output_path, train_data, test_data):
-    # with open(model_output_path / "guide.out", "r") as content_file:
-    #     content = content_file.read()
     props = {}
     if "Elapsed time in seconds" not in content:
         # Timeout

@@ -35,13 +35,15 @@ def save_all_formats(dir, info, frame, filename):
     osrt_frame.to_csv(osrt_base / (filename + ".csv"), header=True, index=False)
     streed_pwc_frame.to_csv(streed_pwc_base / (filename + ".csv"), sep=" ", header=False, index=False)
     streed_pwl_frame.to_csv(streed_pwl_base / (filename + ".csv"), sep=" ", header=False, index=False)
-    all_frame.to_csv(all_base / (filename + ".csv"), header=True, index=False)
+    all_frame.to_csv(all_base / (filename + ".csv"), header=False, index=False)
 
     # Add GUIDE descriptor file
     with open(all_base / (filename + ".guide.in"), "w") as guide_file:
         guide_file.write(f"{filename}.csv\n")
-        guide_file.write(f"NA\n") # cleaned data cannot contain NA, but needs to be given
-        guide_file.write(f"2\n") # rows start at line 2, there is a header
+        # Cleaned data cannot contain NA, but needs to be given
+        guide_file.write(f"NA\n")
+        # Rows start at line 1, there is no header (if this is set to 2, the R script does not assign the correct names to columns)
+        guide_file.write(f"1\n")
 
         i = 1
         guide_file.write(f"{i} label d\n") # first is target label
@@ -63,6 +65,7 @@ def save_all_formats(dir, info, frame, filename):
             "continuous_features": len(info["continuous_cols"]),
             "mean_squared_error": mean_squared_error(y, np.full(len(y), np.mean(y))),
             "instances": len(y),
+            "cols": all_frame.columns.tolist(),
             "binary_cols": info["binary_cols"],
             "continuous_cols": info["continuous_cols"],
             "categorized_cols": info["categorized_cols"]

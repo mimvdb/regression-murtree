@@ -14,16 +14,16 @@ def load_data_info(name):
 
 
 def load_data_continuous_categorical(name):
-    df = pd.read_csv(PREFIX_DATA / (name + ".csv"))
     df_info = load_data_info(name)
-    X = df.iloc[:, df_info["continuous_cols"] + df_info["categorized_cols"]]
+    df = pd.read_csv(PREFIX_DATA / (name + ".csv"), names=df_info["cols"])
+    X = df.loc[:, df_info["continuous_cols"] + df_info["categorized_cols"]]
     y = df.iloc[:, 0]
     return X, y, df_info
 
 
 def load_data_binary(name):
-    df = pd.read_csv(PREFIX_DATA / (name + ".csv"))
     df_info = load_data_info(name)
-    X = df.iloc[:, df_info["binary_cols"]]
+    df = pd.read_csv(PREFIX_DATA / (name + ".csv"), names=df_info["cols"])
+    X = df.loc[:, df_info["binary_cols"]]
     y = df.iloc[:, 0]
     return X, y, df_info

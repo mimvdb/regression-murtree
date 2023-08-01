@@ -7,6 +7,7 @@ from methods.streed import run_streed_pwc, run_streed_pwl
 from methods.osrt import run_osrt
 from methods.ort import run_ort
 from methods.dtip import run_dtip
+from methods.iai import run_iai, run_iai_l
 
 # from methods.iai import run_iai
 from pathlib import Path
@@ -98,6 +99,12 @@ def run_experiments(experiments: List):
         elif e["method"] == "guide":
             result = run_guide(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "guide"
+        elif e["method"] == "iai":
+            result = run_iai(e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result["method"] = "iai"
+        elif e["method"] == "iai_l":
+            result = run_iai_l(e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result["method"] = "iai_l"
 
         result["timeout"] = e["timeout"]
         result["depth"] = e["depth"]
