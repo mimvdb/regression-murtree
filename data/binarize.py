@@ -4,10 +4,54 @@ from pathlib import Path
 import json
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.base import check_array
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 BINS = 10
+
+
+# custom discretizer, since sklearn's doesn't work well for binary features.
+class QuantileDiscretizer:
+    def __init__(self, n_bins=5):
+        self.n_bins = n_bins
+
+    def fit(self, X):
+        X = check_array(X, dtype="numeric")
+        n_features = X.shape[1]
+        n_bins = np.full(n_features, self.n_bins, dtype=int)
+
+        bin_edges = np.zeros(n_features, dtype=object)
+        for jj in range(n_features):
+            column = X[:, jj]
+            col_min, col_max = column.min(), column.max()
+
+            if col_min == col_max:
+                print("Feature %d is constant and will be replaced with 0." % jj)
+                n_bins[jj] = 1
+                bin_edges[jj] = np.array([-np.inf, np.inf])
+                continue
+
+            quantiles = np.linspace(0, 100, n_bins[jj] + 1)
+            bin_edges[jj] = np.asarray(np.percentile(column, quantiles))
+
+            # This is the main change over KBinsDiscretizer. Add to_end=np.inf so that the last edge is never removed.
+            # The last edge will be replaced with inf when transforming, so should be seen as different from the second to last edge.
+            # Ensuring the last edge isn't removed allows binary features to correctly get two bins.
+            # Remove bins whose width are too small (i.e., <= 1e-8)
+            mask = np.ediff1d(bin_edges[jj][:-1], to_begin=np.inf, to_end=np.inf) > 1e-8
+            bin_edges[jj] = bin_edges[jj][mask]
+            if len(bin_edges[jj]) - 1 != n_bins[jj]:
+                print(
+                    "Bins whose width are too small (i.e., <= "
+                    "1e-8) in feature %d are removed. Consider "
+                    "decreasing the number of bins." % jj
+                )
+                n_bins[jj] = len(bin_edges[jj]) - 1
+
+        self.bin_edges_ = bin_edges
+        self.n_bins_ = n_bins
+
+        return self
 
 
 # Find duplicate columns without transposing https://stackoverflow.com/a/32961145/3395956
@@ -21,9 +65,9 @@ def duplicate_columns(frame):
         lcs = len(cs)
 
         for i in range(lcs):
-            ia = vs.iloc[:,i].values
-            for j in range(i+1, lcs):
-                ja = vs.iloc[:,j].values
+            ia = vs.iloc[:, i].values
+            for j in range(i + 1, lcs):
+                ja = vs.iloc[:, j].values
                 if np.allclose(ia, ja, equal_nan=True):
                     dups.append(cs[i])
                     break
@@ -32,7 +76,8 @@ def duplicate_columns(frame):
 
 
 def binarize_all(clean_dir, bin_dir):
-    if not bin_dir.exists(): bin_dir.mkdir(exist_ok=True)
+    if not bin_dir.exists():
+        bin_dir.mkdir(exist_ok=True)
 
     with open(clean_dir / "info.json", "r") as info_json:
         infos = json.load(info_json)
@@ -49,10 +94,9 @@ def binarize_all(clean_dir, bin_dir):
         frame.drop(dup, axis="columns", inplace=True)
 
         X = frame.iloc[:, 1:]
-        y = frame.iloc[:, 0]
 
-        discretizer = KBinsDiscretizer(BINS, strategy="quantile", subsample=None)
-        discretizer.fit(X, y)
+        discretizer = QuantileDiscretizer(BINS)
+        discretizer.fit(X)
 
         binary = []
         for i in range(1, frame.shape[1]):
@@ -73,7 +117,7 @@ def binarize_all(clean_dir, bin_dir):
         info["bins"] = list(map(lambda a: a.tolist(), discretizer.bin_edges_))
 
         # Drop duplicate binarized columns
-        dup = duplicate_columns(frame.loc[:,binary])
+        dup = duplicate_columns(frame.loc[:, binary])
         info["removed_cols"].extend(dup)
         frame.drop(dup, axis="columns", inplace=True)
 
