@@ -139,7 +139,7 @@ def binarize_all(clean_dir, bin_dir):
         frame.drop(dup, axis="columns", inplace=True)
 
         info["binary_cols"] = [s for s in binary if s not in dup]
-        info["continuous_cols"] = X.columns.tolist()
+        info["continuous_cols"] = [s for s in X.columns.tolist() if s not in info["categorized_cols"]]
         info["instances_binarized"] = frame.shape[0]
         info["features_binarized"] = frame.shape[1]
         frame.to_csv(bin_dir / (info["filename"] + ".csv"), header=True, index=False)

@@ -15,11 +15,14 @@ def save_all_formats(dir, info, frame, filename):
     osrt_base = dir / "osrt"
     streed_pwc_base = dir / "streed_pwc"
     streed_pwl_base = dir / "streed_pwl"
+    all_base = dir / "all"
 
     osrt_base.mkdir(parents=True, exist_ok=True)
     streed_pwc_base.mkdir(exist_ok=True)
     streed_pwl_base.mkdir(exist_ok=True)
+    all_base.mkdir(exist_ok=True)
 
+    X_cat = frame.loc[:,info["categorized_cols"]]
     X_cont = frame.loc[:,info["continuous_cols"]]
     X_bin = frame.loc[:,info["binary_cols"]]
     y = frame.iloc[:,0]
@@ -27,23 +30,25 @@ def save_all_formats(dir, info, frame, filename):
     osrt_frame = pd.concat([X_bin, y], axis="columns")
     streed_pwc_frame = pd.concat([y, X_bin], axis="columns")
     streed_pwl_frame = pd.concat([y, X_cont, X_bin], axis="columns")
+    all_frame = pd.concat([y, X_cat, X_cont, X_bin], axis="columns")
 
     osrt_frame.to_csv(osrt_base / (filename + ".csv"), header=True, index=False)
     streed_pwc_frame.to_csv(streed_pwc_base / (filename + ".csv"), sep=" ", header=False, index=False)
     streed_pwl_frame.to_csv(streed_pwl_base / (filename + ".csv"), sep=" ", header=False, index=False)
+    all_frame.to_csv(streed_pwl_base / (filename + ".csv"), header=True, index=False)
 
-    # Reuse STreeD PWL file for GUIDE, since it has continuous features.
-    with open(streed_pwl_base / (filename + ".guide.in"), "w") as guide_file:
+    # Add GUIDE descriptor file
+    with open(all_base / (filename + ".guide.in"), "w") as guide_file:
         guide_file.write(f"{filename}.csv\n")
         guide_file.write(f"NA\n") # cleaned data cannot contain NA, but needs to be given
-        guide_file.write(f"1\n") # rows start at line 1, there is no header
+        guide_file.write(f"2\n") # rows start at line 2, there is a header
 
         i = 1
         guide_file.write(f"{i} label d\n") # first is target label
         i += 1
         for col in streed_pwl_frame.iloc[:, 1:]:
             if col in info["categorized_cols"]:
-                guide_file.write(f"{i} cat{i} b\n") # categorical, can be used in splitting or fitting
+                guide_file.write(f"{i} cat{i} c\n") # categorical, can be used in splitting
             elif col in info["continuous_cols"]:
                 guide_file.write(f"{i} cont{i} n\n") # numerical, can be used in splitting or fitting
             elif col in info["binary_cols"]:
@@ -57,7 +62,10 @@ def save_all_formats(dir, info, frame, filename):
             "binary_features": len(info["binary_cols"]),
             "continuous_features": len(info["continuous_cols"]),
             "mean_squared_error": mean_squared_error(y, np.full(len(y), np.mean(y))),
-            "instances": len(y)
+            "instances": len(y),
+            "binary_cols": info["binary_cols"],
+            "continuous_cols": info["continuous_cols"],
+            "categorized_cols": info["categorized_cols"]
         }, data_info, indent=4)
 
 

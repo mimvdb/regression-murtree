@@ -7,7 +7,7 @@ import sys
 import os
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-PREFIX_DATA = SCRIPT_DIR / ".." / ".." / "data" / "prepared" / "streed_pwl"
+PREFIX_DATA = SCRIPT_DIR / ".." / ".." / "data" / "prepared" / "all"
 GUIDE_CONFIG = SCRIPT_DIR / "misc" / "guide.in"
 
 float_pattern = r"[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?"  # https://docs.python.org/3/library/re.html#simulating-scanf
@@ -17,7 +17,7 @@ def modify_script(original_lines, data_path):
     modified_lines = []
     for line in original_lines:
         if line.startswith("newdata <-"):
-            modified_lines.append(f"newdata <- read.csv(\"{data_path}\",header=FALSE,colClasses=\"character\",sep=\"\")\n")
+            modified_lines.append(f"newdata <- read.csv(\"{data_path}\",header=TRUE,colClasses=\"character\")\n")
         else:
             modified_lines.append(line)
     modified_lines.append("mse <- mean((as.numeric(newdata$label) - pred)^2)\n")

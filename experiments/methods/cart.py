@@ -5,14 +5,14 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
 
-from methods.misc.util import load_data_continuous
+from methods.misc.util import load_data_continuous_categorical
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def run_cart(timeout, depth, train_data, test_data):
-    X_train, y_train, train_info = load_data_continuous(train_data)
-    X_test, y_test, test_info = load_data_continuous(test_data)
+    X_train, y_train, train_info = load_data_continuous_categorical(train_data)
+    X_test, y_test, test_info = load_data_continuous_categorical(test_data)
 
     parameters = {"max_depth": [depth]}
     total_train_var = np.std(y_train) * np.std(y_train)

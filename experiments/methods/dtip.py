@@ -1,9 +1,8 @@
 import pandas as pd
 import numpy as np
 from gurobipy import Model, quicksum, GRB
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import r2_score
-from methods.misc.util import load_data_continuous
+from methods.misc.util import load_data_continuous_categorical
 import math
 import time
 import traceback
@@ -98,8 +97,8 @@ def _run_dtip(
     assert(tune == False)
     verbose = True
 
-    _train_X, train_y, train_info = load_data_continuous(train_data)
-    _test_X, test_y, test_info = load_data_continuous(test_data)
+    _train_X, train_y, train_info = load_data_continuous_categorical(train_data)
+    _test_X, test_y, test_info = load_data_continuous_categorical(test_data)
 
     start_time = time.time() # Start timer after reading data
     
