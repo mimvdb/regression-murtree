@@ -4,6 +4,7 @@ from sklearn.metrics import r2_score
 from methods.misc.util import load_data_continuous_categorical
 
 
+
 def run_iai(timeout, depth, train_data, test_data):
     # Import iai in function to allow importing this module without having it installed
     os.environ["IAI_DISABLE_COMPILED_MODULES"] = "True"
@@ -11,6 +12,12 @@ def run_iai(timeout, depth, train_data, test_data):
 
     X_train, y_train, train_info = load_data_continuous_categorical(train_data)
     X_test, y_test, test_info = load_data_continuous_categorical(test_data)
+
+    # IAI has trouble with some column names. E.g. dots are replaced by underscores which causes mismatches. Replace with indices
+    orig_columns = X_train.columns.tolist()
+    new_columns  = list(map(str,range(len(orig_columns))))
+    X_train.columns = new_columns
+    X_test.columns = new_columns
 
     start_time = time.time()  # Start timer after reading data
 
@@ -43,13 +50,20 @@ def run_iai_l(timeout, depth, train_data, test_data):
     X_train, y_train, train_info = load_data_continuous_categorical(train_data)
     X_test, y_test, test_info = load_data_continuous_categorical(test_data)
 
+    # IAI has trouble with some column names. E.g. dots are replaced by underscores which causes mismatches. Replace with indices
+    orig_columns = X_train.columns.tolist()
+    new_columns  = list(map(str,range(len(orig_columns))))
+    X_train.columns = new_columns
+    X_test.columns = new_columns
+    regression_cols = list(map(lambda x: str(orig_columns.index(x)), train_info["continuous_cols"]))
+
     start_time = time.time()  # Start timer after reading data
 
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(
             max_depth=0,
             minbucket=X_train.shape[1] * 10,
-            regression_features=train_info["continuous_cols"],
+            regression_features=regression_cols,
         ),
         regression_lambda=[0.1, 0.01, 0.001, 0.0001],
     )
@@ -60,7 +74,7 @@ def run_iai_l(timeout, depth, train_data, test_data):
         iai.OptimalTreeRegressor(
             max_depth=depth,
             minbucket=X_train.shape[1] * 10,
-            regression_features=train_info["continuous_cols"],
+            regression_features=regression_cols,
             regression_lambda=starting_lambda,
         ),
         cp=[0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001],
@@ -73,7 +87,7 @@ def run_iai_l(timeout, depth, train_data, test_data):
             max_depth=depth,
             minbucket=X_train.shape[1] * 10,
             cp=best_cp,
-            regression_features=train_info["continuous_cols"],
+            regression_features=regression_cols,
         ),
         regression_lambda=[0.0001, 0.001, 0.01, 0.1],
     )
