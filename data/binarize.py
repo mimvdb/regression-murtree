@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import numpy as np
 from sklearn.base import check_array
+from sklearn.preprocessing import OneHotEncoder
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 BINS = 10
@@ -99,22 +100,38 @@ def binarize_all(clean_dir, bin_dir):
         discretizer.fit(X)
 
         binary = []
+        cuts = {}
         for i in range(1, frame.shape[1]):
             series = frame.iloc[:, i]
             series_name = frame.columns[i]
-            cut_points = discretizer.bin_edges_[i - 1][
-                1:-1
-            ]  # Exclude label and left/right edges
 
-            for j in range(len(cut_points)):
-                col_name = series_name + f"_bin_{j}"
-                frame[col_name] = (series >= cut_points[j]) * 1
-                binary.append(col_name)
-                print(
-                    f"Uniques {col_name}: {len(frame[col_name].unique())}, Sum: {frame[col_name].sum()}"
-                )
+            # One-hot encode categories, discretize continuous.
+            if series_name in info["categorized_cols"]:
+                unique = series.unique()
+                for val in unique:
+                    col_name = series_name + f"_cat_{val}"
+                    frame[col_name] = (series == val) * 1
+                    binary.append(col_name)
+                print(f"{series_name} uniques: {unique}")
+            else:
+                cut_points = discretizer.bin_edges_[i - 1][
+                    1:-1
+                ]  # Exclude label and left/right edges
+                cuts[series_name] = cut_points.tolist()
 
-        info["bins"] = list(map(lambda a: a.tolist(), discretizer.bin_edges_))
+                uniques = []
+                counts = []
+                for j in range(len(cut_points)):
+                    col_name = series_name + f"_bin_{j}"
+                    frame[col_name] = (series >= cut_points[j]) * 1
+                    binary.append(col_name)
+                    uniques.append(len(frame[col_name].unique()))
+                    counts.append(frame[col_name].sum())
+                print(f"{series_name} cuts: {cuts[series_name]}")
+                print(f"Uniques: {uniques}")
+                print(f"Counts: {counts}")
+
+        info["cuts"] = cuts
 
         # Drop duplicate binarized columns
         dup = duplicate_columns(frame.loc[:, binary])
