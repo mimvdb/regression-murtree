@@ -153,7 +153,7 @@ def _hyper(exe, timeout, depth, train_data, test_data):
         return parse_output("", timeout)
 
     best_config = np.argmax(scores_per_config)
-    result = run_osrt(exe, timeout - (time.time() - start)), depth, train_data, test_data, configs[best_config], False)
+    result = run_osrt(exe, timeout - (time.time() - start), depth, train_data, test_data, configs[best_config], False)
     if result["time"] == -1 or result["time"] == timeout + 1:
         return result
     result["time"] = time.time() - start
