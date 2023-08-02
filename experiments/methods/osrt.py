@@ -9,7 +9,10 @@ import numpy as np
 import subprocess
 import sys
 import os
+import time
 from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import KBinsDiscretizer
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 PREFIX_DATA = SCRIPT_DIR / ".." / ".." / "data" / "prepared" / "osrt"
@@ -37,8 +40,16 @@ def parse_output(content, timeout: int, model_output_path, train_data, test_data
     props["time"] = float(re.search(time_pattern, content, re.M).group(1))
     props["terminal_calls"] = -1
 
-    X_train, y_train, train_info = load_data_binary(train_data)
-    X_test, y_test, test_info = load_data_binary(test_data)
+    if train_data.endswith(".csv"): # Hypertuning subrun
+        train_df = pd.read_csv(train_data)
+        X_train = train_df[train_df.columns[:-1]]
+        y_train = train_df[train_df.columns[-1]]
+        test_df = pd.read_csv(test_data)
+        X_test = test_df[test_df.columns[:-1]]
+        y_test = test_df[test_df.columns[-1]]
+    else:
+        X_train, y_train, train_info = load_data_binary(train_data)
+        X_test, y_test, test_info = load_data_binary(test_data)
 
     # OSRT reports False-convergence detected when a single root node is the best. Special case for this here
     if re.search("False-convergence Detected", content):
@@ -79,9 +90,10 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
                 json.dump(config_base, tmp_config_file)
 
         try:
+            train_file_path = str(PREFIX_DATA / (train_data + ".csv")) if not train_data.endswith(".csv") else train_data
             command = [
                     exe,
-                    str(PREFIX_DATA / (train_data + ".csv")),
+                    train_file_path,
                     config_path,
                 ]
             
@@ -109,12 +121,40 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
             }
 
 def _hyper(exe, timeout, depth, train_data, test_data):
-    best = float("-inf")
-    best_run = None
+    
+    start = time.time()
 
-    for cp in [0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001]:
-        run = run_osrt(exe, timeout, depth, train_data, test_data, cp, False)
-        if run["train_r2"] > best:
-            best = run["train_r2"]
-            best_run = run
-    return best_run
+    df = pd.read_csv(str(PREFIX_DATA / (train_data + ".csv")))
+    label = df[df.columns[-1]] # last column is the label
+    # use label to stratify the data
+    discretized_label = KBinsDiscretizer(n_bins=10, encode="onehot-dense", strategy="quantile").fit_transform(np.array(label).reshape(-1,1))
+
+    configs = [0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001]
+    scores_per_config = [0 for _ in len(configs)]
+
+    for run in range(5):
+        train_df, test_df = train_test_split(df, test_size = 0.2, random_state=42+run, stratify=discretized_label)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            dir_path = Path(temp_dir)
+            train_path = dir_path / f"{train_data}-'val-train-{run+1}.csv"
+            test_path = dir_path / f"{test_data}-'val-test-{run+1}.csv"
+
+            train_df.to_csv(train_path, index=False)
+            test_df.to_csv(test_path, index=False)
+
+            for i, cp in enumerate(configs):
+                if time.time() - start >= timeout: break
+                run = run_osrt(exe, timeout - (time.time() - start), depth, train_path, test_path, cp, False)
+                scores_per_config[i] += run["test_r2"]
+
+        if time.time() - start >= timeout: break
+    
+    if time.time() - start >= timeout: 
+        return parse_output("", timeout)
+
+    best_config = np.argmax(scores_per_config)
+    result = run_osrt(exe, timeout - (time.time() - start)), depth, train_data, test_data, configs[best_config], False)
+    if result["time"] == -1 or result["time"] == timeout + 1:
+        return result
+    result["time"] = time.time() - start
+    return result
