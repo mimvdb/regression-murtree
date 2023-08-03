@@ -62,7 +62,7 @@ def run_iai_l(timeout, depth, train_data, test_data):
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(
             max_depth=0,
-            minbucket=X_train.shape[1] * 10,
+            minbucket=len(regression_cols) * 10,
             regression_features=regression_cols,
         ),
         regression_lambda=[0.1, 0.01, 0.001, 0.0001],
@@ -73,7 +73,7 @@ def run_iai_l(timeout, depth, train_data, test_data):
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(
             max_depth=depth,
-            minbucket=X_train.shape[1] * 10,
+            minbucket=len(regression_cols) * 10,
             regression_features=regression_cols,
             regression_lambda=starting_lambda,
         ),
@@ -85,7 +85,7 @@ def run_iai_l(timeout, depth, train_data, test_data):
     grid = iai.GridSearch(
         iai.OptimalTreeRegressor(
             max_depth=depth,
-            minbucket=X_train.shape[1] * 10,
+            minbucket=len(regression_cols) * 10,
             cp=best_cp,
             regression_features=regression_cols,
         ),
