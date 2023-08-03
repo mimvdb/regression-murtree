@@ -33,9 +33,9 @@ GUIDE_PATH = SCRIPT_DIR / "methods" / "misc" / "guide"
 
 def run_experiments(experiments: List):
     results = []
-
-    for e in experiments:
-        print(e)
+    n_experiments = len(experiments)
+    for e_i, e in enumerate(experiments):
+        print(f"{e_i+1}/{n_experiments}: ", e)
         if e["method"] == "streed_pwc":
             result = run_streed_pwc(
                 str(STREED_PATH),
