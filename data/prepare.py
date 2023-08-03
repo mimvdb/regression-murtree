@@ -71,7 +71,8 @@ def save_all_formats(bin_dir, prep_dir, frame, filename):
             "cols": all_frame.columns.tolist(),
             "binary_cols": info["binary_cols"],
             "continuous_cols": info["continuous_cols"],
-            "categorized_cols": info["categorized_cols"]
+            "categorized_cols": info["categorized_cols"],
+            "bincat_cols": info["bincat_cols"]
         }, data_info, indent=4)
 
 

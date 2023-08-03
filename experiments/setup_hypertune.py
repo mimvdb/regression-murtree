@@ -7,7 +7,7 @@ import argparse
 import random
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-DEPTH = 2 # 5
+DEPTH = 1 # 5
 TIMEOUT = 60
 
 def generate_experiments():
@@ -65,17 +65,6 @@ def generate_experiments():
                 "complexity_penalty": 0.0001,
                 "tune": True,
             }
-            ort = {
-                "method": "ort",
-                "timeout": TIMEOUT,
-                "depth": DEPTH,
-                "train_data": split["train"],
-                "test_data": split["test"],
-                "complexity_penalty": 0.0001,
-                "linear": False,
-                "lasso_penalty": 0,
-                "metric": "MAE"
-            }
             iai = {
                 "method": "iai",
                 "timeout": TIMEOUT,
@@ -91,14 +80,13 @@ def generate_experiments():
                 "test_data": split["test"],
             }
             
-            experiments.append(cart)
-            experiments.append(guide)
-            experiments.append(streed_pwc)
-            experiments.append(streed_pwl)
-            # experiments.append(osrt)
-            # experiments.append(ort)
-            experiments.append(iai)
-            experiments.append(iai_l)
+            # experiments.append(cart)
+            # experiments.append(guide)
+            # experiments.append(streed_pwc)
+            # experiments.append(streed_pwl)
+            experiments.append(osrt)
+            # experiments.append(iai)
+            # experiments.append(iai_l)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

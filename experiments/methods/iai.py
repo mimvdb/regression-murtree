@@ -1,7 +1,7 @@
 import os
 import time
 from sklearn.metrics import r2_score
-from methods.misc.util import load_data_continuous_categorical
+from methods.misc.util import load_data_cont_bincat
 
 
 
@@ -10,8 +10,8 @@ def run_iai(timeout, depth, train_data, test_data):
     os.environ["IAI_DISABLE_COMPILED_MODULES"] = "True"
     from interpretableai import iai
 
-    X_train, y_train, train_info = load_data_continuous_categorical(train_data)
-    X_test, y_test, test_info = load_data_continuous_categorical(test_data)
+    X_train, y_train, train_info = load_data_cont_bincat(train_data)
+    X_test, y_test, test_info = load_data_cont_bincat(test_data)
 
     # IAI has trouble with some column names. E.g. dots are replaced by underscores which causes mismatches. Replace with indices
     orig_columns = X_train.columns.tolist()
@@ -47,8 +47,8 @@ def run_iai_l(timeout, depth, train_data, test_data):
     os.environ["IAI_DISABLE_COMPILED_MODULES"] = "True"
     from interpretableai import iai
 
-    X_train, y_train, train_info = load_data_continuous_categorical(train_data)
-    X_test, y_test, test_info = load_data_continuous_categorical(test_data)
+    X_train, y_train, train_info = load_data_cont_bincat(train_data)
+    X_test, y_test, test_info = load_data_cont_bincat(test_data)
 
     # IAI has trouble with some column names. E.g. dots are replaced by underscores which causes mismatches. Replace with indices
     orig_columns = X_train.columns.tolist()

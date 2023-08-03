@@ -62,9 +62,8 @@ class CategoricalToBinary:
         return X
 
     def update_info(self, info):
-        if not "binary_cols" in info:
-            info["binary_cols"] = []
         info["binary_cols"].extend(self.column_names)
+        info["bincat_cols"].extend(self.column_names)
 
 class ContinuousToBinary:
 
@@ -90,14 +89,9 @@ class ContinuousToBinary:
             X[col_name] = (series >= cut_point).astype(int)
 
     def update_info(self, info):
-        if not "binary_cols" in info:
-            info["binary_cols"] = []
         for j, cut_point in enumerate(self.cutpoints):
             col_name = f"{self.org_column_name}_bin_{j}"
             info["binary_cols"].append(col_name)
-
-        if not "cuts" in info:
-            info["cuts"] = {}
         info["cuts"][self.org_column_name] = self.cutpoints
         
 class Discretizer:
@@ -138,6 +132,10 @@ class Discretizer:
                 
 
     def transform(self, X, info):
+        info["cuts"] = {}
+        info["bincat_cols"] = []
+        info["binary_cols"] = []
+        
         n_features = X.shape[1] 
         for jj in range(n_features):
             column_name = X.columns[jj]
@@ -163,6 +161,7 @@ def binarize(bin_dir, info, train_frame, train_name, test_frame=None, test_name=
     X = discretizer.transform(X, train_info)
     frame_out = pd.concat((y, X), axis=1)
     train_info["binary_cols"] = [s for s in train_info["binary_cols"] if s not in discretizer.redundant_binary_columns]
+    train_info["bincat_cols"] = [s for s in train_info["bincat_cols"] if s not in discretizer.redundant_binary_columns]
     train_info["continuous_cols"] = [s for s in org_columns if s not in train_info["categorized_cols"]]
     train_info["instances_binarized"] = frame_out.shape[0]
     train_info["features_binarized"] = frame_out.shape[1]
@@ -179,6 +178,7 @@ def binarize(bin_dir, info, train_frame, train_name, test_frame=None, test_name=
     X = discretizer.transform(X, test_info)
     frame_out = pd.concat((y, X), axis=1)
     test_info["binary_cols"] = [s for s in test_info["binary_cols"] if s not in discretizer.redundant_binary_columns]
+    test_info["bincat_cols"] = [s for s in test_info["bincat_cols"] if s not in discretizer.redundant_binary_columns]
     test_info["continuous_cols"] = [s for s in org_columns if s not in test_info["categorized_cols"]]
     test_info["instances_binarized"] = frame_out.shape[0]
     test_info["features_binarized"] = frame_out.shape[1]

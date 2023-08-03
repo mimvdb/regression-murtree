@@ -1,6 +1,6 @@
 from pathlib import Path
 from methods.misc.tree_classifier import TreeClassifier
-from methods.misc.util import load_data_binary
+from methods.misc.util import load_data_bin_bincat
 import json
 import re
 import tempfile
@@ -48,8 +48,8 @@ def parse_output(content, timeout: int, model_output_path, train_data, test_data
         X_test = test_df[test_df.columns[:-1]]
         y_test = test_df[test_df.columns[-1]]
     else:
-        X_train, y_train, train_info = load_data_binary(train_data)
-        X_test, y_test, test_info = load_data_binary(test_data)
+        X_train, y_train, train_info = load_data_bin_bincat(train_data)
+        X_test, y_test, test_info = load_data_bin_bincat(test_data)
 
     # OSRT reports False-convergence detected when a single root node is the best. Special case for this here
     if re.search("False-convergence Detected", content):
@@ -109,7 +109,7 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
             return parsed
         except subprocess.TimeoutExpired as e:
             # print(e.stdout.decode())
-            return parse_output("", timeout)
+            return parse_output("", timeout, "", "", "")
         except subprocess.CalledProcessError as e:
             print(e.stdout.decode(), file=sys.stderr, flush=True)
             return {
@@ -130,7 +130,7 @@ def _hyper(exe, timeout, depth, train_data, test_data):
     discretized_label = KBinsDiscretizer(n_bins=10, encode="onehot-dense", strategy="quantile").fit_transform(np.array(label).reshape(-1,1))
 
     configs = [0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001]
-    scores_per_config = [0 for _ in len(configs)]
+    scores_per_config = [0] * len(configs)
 
     for run in range(5):
         train_df, test_df = train_test_split(df, test_size = 0.2, random_state=42+run, stratify=discretized_label)
@@ -144,13 +144,13 @@ def _hyper(exe, timeout, depth, train_data, test_data):
 
             for i, cp in enumerate(configs):
                 if time.time() - start >= timeout: break
-                run = run_osrt(exe, timeout - (time.time() - start), depth, train_path, test_path, cp, False)
+                run = run_osrt(exe, timeout - (time.time() - start), depth, str(train_path), str(test_path), cp, False)
                 scores_per_config[i] += run["test_r2"]
 
         if time.time() - start >= timeout: break
     
     if time.time() - start >= timeout: 
-        return parse_output("", timeout)
+        return parse_output("", timeout, "", "", "")
 
     best_config = np.argmax(scores_per_config)
     result = run_osrt(exe, timeout - (time.time() - start), depth, train_data, test_data, configs[best_config], False)
