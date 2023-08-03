@@ -100,6 +100,7 @@ def binarize_all(clean_dir, bin_dir):
         discretizer.fit(X)
 
         binary = []
+        bin_cat = []
         cuts = {}
         for i in range(1, frame.shape[1]):
             series = frame.iloc[:, i]
@@ -112,6 +113,7 @@ def binarize_all(clean_dir, bin_dir):
                     col_name = series_name + f"_cat_{val}"
                     frame[col_name] = (series == val) * 1
                     binary.append(col_name)
+                    bin_cat.append(col_name)
                 print(f"{series_name} uniques: {unique}")
             else:
                 cut_points = discretizer.bin_edges_[i - 1][
@@ -139,7 +141,8 @@ def binarize_all(clean_dir, bin_dir):
         frame.drop(dup, axis="columns", inplace=True)
 
         info["binary_cols"] = [s for s in binary if s not in dup]
-        info["continuous_cols"] = [s for s in X.columns.tolist() if s not in info["categorized_cols"]]
+        info["bincat_cols"] = [s for s in bin_cat if s not in dup]
+        info["continuous_cols"] = [s for s in X.columns.tolist() if s not in info["categorized_cols"] and s not in dup]
         info["instances_binarized"] = frame.shape[0]
         info["features_binarized"] = frame.shape[1]
         frame.to_csv(bin_dir / (info["filename"] + ".csv"), header=True, index=False)

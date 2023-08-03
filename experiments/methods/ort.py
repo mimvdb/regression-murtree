@@ -3,7 +3,7 @@ import numpy as np
 from gurobipy import Model, quicksum, GRB
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import r2_score
-from methods.misc.util import load_data_continuous_categorical
+from methods.misc.util import load_data_cont_bincat
 import math
 import time
 import traceback
@@ -26,8 +26,8 @@ def _run_ort(
     assert(tune == False)
     verbose = True
 
-    _train_X, train_y, train_info = load_data_continuous_categorical(train_data)
-    _test_X, test_y, test_info = load_data_continuous_categorical(test_data)
+    _train_X, train_y, train_info = load_data_cont_bincat(train_data)
+    _test_X, test_y, test_info = load_data_cont_bincat(test_data)
     
     start_time = time.time() # Start timer after reading data
     

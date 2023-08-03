@@ -286,6 +286,13 @@ def fetch_household():
         },
     )
 
+    date_parts = df["Date"].str.split("/")
+    df["Month"] = date_parts.apply(lambda x: int(x[1]))
+    df["Year"] = date_parts.apply(lambda x: int(x[2]))
+
+    time_parts = df["Time"].str.split(":")
+    df["Hour"] = time_parts.apply(lambda x: int(x[0]))
+
     # Drop sub_meterings, as these may be a proxy for the label
     df.drop(
         columns=["Sub_metering_1", "Sub_metering_2", "Sub_metering_3"], inplace=True
@@ -299,10 +306,10 @@ def fetch_household():
 
 datasets = [
     {"name": "Auto MPG", "filename": "auto_mpg", "fetch": fetch_auto_mpg},
-    {"name": "Airfoil Self-Noise", "filename": "airfoil", "fetch": fetch_airfoil},
-    {"name": "Auction Verification", "filename": "auction", "fetch": fetch_auction},
+    {"name": "Airfoil", "filename": "airfoil", "fetch": fetch_airfoil},
+    {"name": "Auction", "filename": "auction", "fetch": fetch_auction},
     {
-        "name": "Optical Interconnection Network",
+        "name": "Optical Network",
         "filename": "optical",
         "fetch": fetch_optical,
     },
@@ -312,25 +319,25 @@ datasets = [
         "fetch": fetch_real_estate,
     },
     {
-        "name": "Seoul Bike Sharing Demand",
+        "name": "Seoul Bike Sharing",
         "filename": "seoul-bike",
         "fetch": fetch_seoul_bike,
     },
     {"name": "Servo", "filename": "servo", "fetch": fetch_servo},
-    {"name": "Synchronous Machine", "filename": "sync", "fetch": fetch_synch},
-    {"name": "Yacht Hydrodynamics", "filename": "yacht", "fetch": fetch_yacht},
+    {"name": "Sync Machine", "filename": "sync", "fetch": fetch_synch},
+    {"name": "Yacht", "filename": "yacht", "fetch": fetch_yacht},
     {
-        "name": "Energy Efficiency (heating load)",
+        "name": "Energy (Heating)",
         "filename": "enb-heat",
         "fetch": fetch_energy_heat,
     },
     {
-        "name": "Energy Efficiency (cooling load)",
+        "name": "Energy (Cooling)",
         "filename": "enb-cool",
         "fetch": fetch_energy_cool,
     },
     {
-        "name": "Household Power Consumption",
+        "name": "Household Power",
         "filename": "household",
         "fetch": fetch_household,
     },
