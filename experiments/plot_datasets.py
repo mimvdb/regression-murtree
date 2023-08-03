@@ -12,6 +12,10 @@ if __name__ == "__main__":
     rows = []
 
     for info in infos:
-        rows.append(f"{info['name']} & {info['instances_binarized']} & {len(info['continuous_cols'])} & {len(info['binary_cols'])}")
+
+        with open(SCRIPT_DIR / ".." / "data" / "prepared" / f"{info['filename']}.json", "r") as info_json:
+            file_info = json.load(info_json)
+
+        rows.append(f"{info['name']} & {file_info['instances']} & {len(file_info['continuous_cols'])} & {len(file_info['binary_cols'])}")
 
     print("\\\\\n".join(sorted(rows)))

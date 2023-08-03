@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.base import check_array
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import GridSearchCV
 import sklearn.tree
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
@@ -44,6 +45,16 @@ def all_same_columns(frame):
                 sames.append(column_name)
     return sames
 
+def redundant_columns(frame):
+    redundant = []
+    for jj in range(frame.shape[1]):
+            column = frame.iloc[:, jj]
+            column_name = frame.columns[jj]
+            _sum = sum(column)
+            if _sum <= 0.001 * len(column) or _sum >= 0.999 * len(column):
+                redundant.append(column_name)
+    return redundant
+
 class CategoricalToBinary:
     
     def __init__(self, org_column_name, values):
@@ -73,9 +84,17 @@ class ContinuousToBinary:
             uniques = np.unique(values)
             self.cutpoints = [(uniques[i] + uniques[i+1]) / 2 for i in range(len(uniques) - 1)]
         else:
-            reg = DecisionTreeRegressor(max_leaf_nodes=n_bins + 1)
-            reg.fit(values.values.reshape(-1, 1), y)
+            X = values.values.reshape(-1, 1)          
+            reg = DecisionTreeRegressor()
+            parameters = {"max_leaf_nodes": list(range(min(5, n_bins), n_bins + 2))}
+            tuning_model = GridSearchCV(
+                reg, param_grid=parameters, scoring="neg_mean_squared_error", cv=5, verbose=0
+            )
+            tuning_model.fit(X, y)
+            reg = DecisionTreeRegressor(**tuning_model.best_params_)
+            reg.fit(X, y)
             self.cutpoints = sorted([t for t in reg.tree_.threshold if t != sklearn.tree._tree.TREE_UNDEFINED])
+
         counts = []
         for j, cut_point in enumerate(self.cutpoints):
             counts.append((values >= cut_point).astype(int).sum())
@@ -125,6 +144,8 @@ class Discretizer:
         info2 = copy.deepcopy(info)
         X2 = self.transform(X2, info2)
         self.redundant_binary_columns = duplicate_columns(X2.loc[:, info2["binary_cols"]])
+        #self.redundant_binary_columns.extend( redundant_columns(X2.loc[:, info2["binary_cols"]]))
+        #self.redundant_binary_columns = list(set(self.redundant_binary_columns))
         if len(self.redundant_binary_columns) > 0:
             print("Drop redunant binary columns: ", ", ".join(self.redundant_binary_columns))
 

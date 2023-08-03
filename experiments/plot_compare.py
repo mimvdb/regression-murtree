@@ -26,7 +26,7 @@ print("\n * Number of wins (mean per dataset): *\n")
 best_scores = means.max(axis=1)
 for i, m in enumerate(methods):
     scores = means[m]
-    wins = sum(scores >= best_scores)
+    wins = sum(scores + 1e-3 >= best_scores)
     print(f"{m}: {wins} wins")
 
 print("\n * Wilcoxon comparison: *\n")
@@ -35,6 +35,10 @@ for i, m1 in enumerate(methods):
         
         m1_r2 = df[df["method"] == m1]["test_r2"].reset_index(drop=True)
         m2_r2 = df[df["method"] == m2]["test_r2"].reset_index(drop=True)
+
+        no_timeouts = (m1_r2 != -1) & (m2_r2 != -1)
+        m1_r2 = m1_r2[no_timeouts]
+        m2_r2 = m2_r2[no_timeouts]
 
         diff = m1_r2 - m2_r2
         med = diff.median()

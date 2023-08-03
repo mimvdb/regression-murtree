@@ -14,9 +14,6 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 def save(dir, info, frame, filename):
     frame.to_csv(dir / (filename + ".csv"), header=True, index=False)
 
-    #with open(dir / (filename + ".json"), "w") as data_info:
-    #    json.dump(info, data_info, indent=4)
-
 def split_all(clean_dir: Path, split_dir: Path):
     if not split_dir.exists():
         split_dir.mkdir(exist_ok=True)
