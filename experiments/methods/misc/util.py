@@ -10,6 +10,7 @@ PREFIX_DATA = PREPARED_DIR / "all"
 # S = Split, F = Fit, X = Split/Fit, CONT = numerical, CAT = nominal, BIN = numerical binned binarized, BIN_CAT = nominal one-hot
 # |F| = |CONT|, |F_b| = |BIN| + |BIN_CAT|
 ########## CONT ### CAT ### BIN ### BIN_CAT
+# LR:      F        -       -       -
 # CART:    S        -       -       S
 # IAI:     S        -       -       S
 # DTIP:    S        -       -       S
@@ -27,6 +28,14 @@ def load_data_info(name):
     with open(PREPARED_DIR / (name + ".json"), "r") as df_info_file:
         df_info = json.load(df_info_file)
     return df_info
+
+
+def load_data_cont(name):
+    df_info = load_data_info(name)
+    df = pd.read_csv(PREFIX_DATA / (name + ".csv"), names=df_info["cols"])
+    X = df.loc[:, df_info["continuous_cols"]]
+    y = df.iloc[:, 0]
+    return X, y, df_info
 
 
 def load_data_cont_bincat(name):

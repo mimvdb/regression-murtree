@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 # Runs a set of experiments in the specified file
 
-from methods.guide import run_guide
+from methods.guide import run_guide, run_guide_l
+from methods.lr import run_lr
 from methods.cart import run_cart
 from methods.streed import run_streed_pwc, run_streed_pwl
 from methods.osrt import run_osrt
@@ -96,9 +97,15 @@ def run_experiments(experiments: List):
         elif e["method"] == "cart":
             result = run_cart(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "cart"
+        elif e["method"] == "lr":
+            result = run_lr(e["train_data"], e["test_data"])
+            result["method"] = "lr"
         elif e["method"] == "guide":
             result = run_guide(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "guide"
+        elif e["method"] == "guide_l":
+            result = run_guide_l(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result["method"] = "guide_l"
         elif e["method"] == "iai":
             result = run_iai(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "iai"
