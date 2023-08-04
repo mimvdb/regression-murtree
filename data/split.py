@@ -22,7 +22,7 @@ def split_all(clean_dir: Path, split_dir: Path):
         infos = json.load(info_json)
     
     for info in infos:
-        if info["filename"] == 'household': continue
+        # if info["filename"] == 'household': continue
         print(f"****** Splitting {info['filename']} ******")
         frame = pd.read_csv(clean_dir / (info["filename"] + ".csv"))
         save(split_dir, info, frame, info["filename"])

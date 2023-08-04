@@ -7,7 +7,8 @@ import argparse
 import random
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-DEPTH = 1 # 5
+DEPTH = 5
+DEPTH_L = DEPTH - 1
 TIMEOUT = 60 * 15
 
 def generate_experiments():
@@ -17,7 +18,10 @@ def generate_experiments():
     experiments = []
 
     for info in infos:
-        if info["filename"] == "household": continue
+        if info["filename"] in ["household"]: continue
+        if "splits" not in info:
+            print(f"Skipping dataset: {info['filename']}. It does not contain splits")
+            continue
         for split in info["splits"]:
             lr = {
                 "method": "lr",
@@ -26,6 +30,7 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
+
             cart = {
                 "method": "cart",
                 "timeout": TIMEOUT,
@@ -35,13 +40,6 @@ def generate_experiments():
             }
             guide = {
                 "method": "guide",
-                "timeout": TIMEOUT,
-                "depth": DEPTH,
-                "train_data": split["train"],
-                "test_data": split["test"],
-            }
-            guide_l = {
-                "method": "guide_l",
                 "timeout": TIMEOUT,
                 "depth": DEPTH,
                 "train_data": split["train"],
@@ -60,16 +58,6 @@ def generate_experiments():
                 "use_lower_bound": 1,
                 "use_d2": 1,
             }
-            streed_pwl = {
-                "method": "streed_pwl",
-                "timeout": TIMEOUT,
-                "depth": DEPTH,
-                "train_data": split["train"],
-                "test_data": split["test"],
-                "complexity_penalty": 0,
-                "lasso": 0.999,
-                "tune": True,
-            }
             osrt = {
                 "method": "osrt",
                 "timeout": TIMEOUT,
@@ -86,23 +74,41 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
+
+            guide_l = {
+                "method": "guide_l",
+                "timeout": TIMEOUT,
+                "depth": DEPTH_L,
+                "train_data": split["train"],
+                "test_data": split["test"],
+            }
+            streed_pwl = {
+                "method": "streed_pwl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH_L,
+                "train_data": split["train"],
+                "test_data": split["test"],
+                "complexity_penalty": 0,
+                "lasso": 0.999,
+                "tune": True,
+            }
             iai_l = {
                 "method": "iai_l",
                 "timeout": TIMEOUT,
-                "depth": DEPTH,
+                "depth": DEPTH_L,
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
             
-            # experiments.append(lr)
-            # experiments.append(cart)
-            # experiments.append(guide)
+            experiments.append(lr)
+            experiments.append(cart)
+            experiments.append(guide)
             experiments.append(guide_l)
-            # experiments.append(streed_pwc)
-            # experiments.append(streed_pwl)
-            # experiments.append(osrt)
-            # experiments.append(iai)
-            # experiments.append(iai_l)
+            experiments.append(streed_pwc)
+            experiments.append(streed_pwl)
+            experiments.append(osrt)
+            experiments.append(iai)
+            experiments.append(iai_l)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

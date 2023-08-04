@@ -69,7 +69,7 @@ def make_chunks(n: int, l: List):
 
 def add_runs(experiment: Experiment, experiments: List):
     n = len(experiments)
-    chunk_size = min([50, math.ceil(n / 8)])
+    chunk_size = min([1, math.ceil(n / 8)])
     chunks = make_chunks(chunk_size, experiments)
     for i in range(len(chunks)):
         add_run(experiment, chunks[i], i)

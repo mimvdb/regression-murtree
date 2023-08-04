@@ -81,7 +81,7 @@ def prepare_all(bin_dir: Path, prep_dir: Path):
         infos = json.load(info_json)
 
     for info in infos:
-        if info["filename"] == 'household': continue
+        # if info["filename"] == 'household': continue
         print(f"Preparing data: {info['name']}")
         frame = pd.read_csv(bin_dir / (info['filename'] + ".csv"))
         save_all_formats(bin_dir, prep_dir, frame, info["filename"])

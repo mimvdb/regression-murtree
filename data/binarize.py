@@ -216,8 +216,8 @@ def binarize_all(split_dir, bin_dir):
         infos = json.load(info_json)
 
     for info in infos:
-        #if info["filename"] != 'optical': continue
-        if info["filename"] == 'household': continue
+        # if info["filename"] != 'optical': continue
+        # if info["filename"] == 'household': continue
 
         print(f"****** Binarizing {info['filename']} ******")
         frame = pd.read_csv(split_dir / (info["filename"] + ".csv"))
