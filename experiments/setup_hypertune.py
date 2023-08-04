@@ -18,7 +18,7 @@ def generate_experiments():
     experiments = []
 
     for info in infos:
-        if info["filename"] in ["household"]: continue
+        if info["filename"] not in ["household"]: continue
         if "splits" not in info:
             print(f"Skipping dataset: {info['filename']}. It does not contain splits")
             continue
@@ -104,11 +104,11 @@ def generate_experiments():
             experiments.append(cart)
             experiments.append(guide)
             experiments.append(guide_l)
-            experiments.append(streed_pwc)
-            experiments.append(streed_pwl)
-            experiments.append(osrt)
-            experiments.append(iai)
-            experiments.append(iai_l)
+            # experiments.append(streed_pwc)
+            # experiments.append(streed_pwl)
+            # experiments.append(osrt)
+            # experiments.append(iai)
+            # experiments.append(iai_l)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)
