@@ -21,6 +21,13 @@ if __name__ == "__main__":
 
     frame = pd.read_csv(args.in_file)
 
+    df = frame.copy()
+    df["dataset"] = df["train_data"].str.rsplit("_", n=2, expand=True)[0]
+    df.loc[((df["method"] == "iai") | (df["method"] == "iai_l")) & (df["time"] > df["timeout"] * 2), "test_r2"] = -1 # *2 because leniency for methods run locally
+    means = df.groupby(["dataset", "method"])["test_r2"].mean()
+    means = means.unstack('method')
+    best_scores = means.max(axis=1)
+
     methods = ["LR", "CART", "GUIDE", "IAI", "OSRT", "STreeD (PWC)", "GUIDE-L", "IAI-L", "STreeD (PWL)"]
     method_map = {
         "LR": "lr",
@@ -36,6 +43,7 @@ if __name__ == "__main__":
 
     for info in sorted(infos, key=lambda x: x["name"]):
         print(f"{info['name']} &")
+        
         for method in methods:
             sep = "\\\\" if method == methods[-1] else "&"
             split_results = []
@@ -69,4 +77,7 @@ if __name__ == "__main__":
             elif unknown == 1:
                 print(f"? {sep} % {method}")
             else:
-                print(f"{np.mean(split_results):.2f} {sep} % {method}")
+                result = f"{np.mean(split_results):.2f}"
+                if np.mean(split_results) + 1e-3 >= best_scores[info["filename"]]:
+                    result = "\\textbf{" + result + "}"
+                print(f"{result} {sep} % {method}")

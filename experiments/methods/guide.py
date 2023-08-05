@@ -84,7 +84,7 @@ def run_guide(exe, timeout, depth, train_data, test_data):
                 input_string += line.replace("2", str(depth))
             else:
                 input_string += line
-
+        
         try:
             command = [exe]
             
@@ -118,6 +118,9 @@ def run_guide(exe, timeout, depth, train_data, test_data):
 
 
 def run_guide_l(exe, timeout, depth, train_data, test_data):
+    train_info = load_data_info(train_data)
+    n_reg_cols = len(train_info["continuous_cols"])
+
     with tempfile.TemporaryDirectory() as temp_dir:
         dir_path = Path(temp_dir)
 
@@ -136,6 +139,8 @@ def run_guide_l(exe, timeout, depth, train_data, test_data):
                 input_string += line.replace("guide.in", str(train_data + ".guide.in"))
             elif "max. no. split levels" in line:
                 input_string += line.replace("2", str(depth))
+            elif "min. node size" in line:
+                input_string += line.replace("1", "2") + str(n_reg_cols * 10) + "\n"
             else:
                 input_string += line
 
