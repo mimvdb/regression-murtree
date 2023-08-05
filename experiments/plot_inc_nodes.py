@@ -34,6 +34,7 @@ sns.set_palette("colorblind")
 rel = sns.relplot(
     data=df, x="depth", y="test_r2",
     col="dataset", hue="method", style="method",
+    hue_order=["CART", "GUIDE", "IAI", "STreeD"],
     kind="line",
     height = HEIGTH, aspect=(WIDTH / (n_cols*1.16))/HEIGTH,
     facet_kws={'sharey': True}
@@ -49,7 +50,8 @@ rel.set_xlabels("Maximum depth")
 rel.set_ylabels("$R^2$ score")
 rel.set_titles("{col_name}")
 
-sns.move_legend(rel, "upper center", bbox_to_anchor=(0.55, 0.87), ncol=n_methods, title="", frameon=True)
+#sns.move_legend(rel, "upper center", bbox_to_anchor=(0.55, 0.87), ncol=n_methods, title="", frameon=True)
+sns.move_legend(rel, "upper left", bbox_to_anchor=(0.15, 0.87), ncol=1, title="", frameon=True)
 
 plt.tight_layout()
 plt.savefig(SCRIPT_DIR / "plot" / "fig-inc-nodes.pdf", bbox_inches="tight", pad_inches = 0.03)
