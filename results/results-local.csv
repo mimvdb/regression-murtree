@@ -1,0 +1,6 @@
+method,timeout,depth,train_data,test_data,complexity_penalty,time,train_r2,test_r2,leaves,terminal_calls
+streed_pwc,900,5,airfoil_train_0,airfoil_test_0,0,66.6161,0.7510838287757613,0.660928718314685,32,24058
+streed_pwc,900,5,airfoil_train_1,airfoil_test_1,0,54.3924,0.7552417883977159,0.6738721355955062,32,21735
+streed_pwc,900,5,airfoil_train_2,airfoil_test_2,0,48.4272,0.7600651179816704,0.6602569861605316,31,19917
+streed_pwc,900,5,airfoil_train_3,airfoil_test_3,0,114.161,0.7619408654500488,0.7195476672690121,32,35476
+streed_pwc,900,5,airfoil_train_4,airfoil_test_4,0,97.999,0.7646948320892619,0.6637054954162587,32,32272

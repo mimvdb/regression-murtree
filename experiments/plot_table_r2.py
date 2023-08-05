@@ -34,7 +34,7 @@ if __name__ == "__main__":
         "IAI-L": "iai_l"
     }
 
-    for info in infos:
+    for info in sorted(infos, key=lambda x: x["name"]):
         print(f"{info['name']} &")
         for method in methods:
             sep = "\\\\" if method == methods[-1] else "&"
@@ -47,10 +47,14 @@ if __name__ == "__main__":
                 filtered = frame[filter]
                 if len(filtered) != 1:
                     unknown = 1
-                    break
+                    continue
+                
                 timeout = filtered["timeout"].values[0]
                 time = filtered["time"].values[0]
                 test_r2 = filtered["test_r2"].values[0]
+
+                # Leniency for methods run locally
+                if method in ["IAI", "IAI-L"]: timeout *= 2
 
                 if time > timeout:
                     num_timeout += 1
@@ -59,8 +63,10 @@ if __name__ == "__main__":
                     split_results.append(test_r2)
                 else:
                     num_fail += 1
-            if unknown == 0:
-                result = "-" if len(split_results) == 0 else f"{np.mean(split_results):.2f}"
-                print(f"{result} {sep} % {method} (# Exceeded timeout: {num_timeout}, # Failed: {num_fail})")
-            else:
+            
+            if num_timeout > 0 or num_fail > 0:
+                print(f"- {sep} % {method} (# Exceeded timeout: {num_timeout}, # Failed: {num_fail})")
+            elif unknown == 1:
                 print(f"? {sep} % {method}")
+            else:
+                print(f"{np.mean(split_results):.2f} {sep} % {method}")
