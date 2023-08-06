@@ -5,13 +5,12 @@ import json
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import KBinsDiscretizer
+from sklearn.utils import shuffle
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
-def save_all_formats(bin_dir, prep_dir, frame, filename):
+def save_all_formats(prep_dir, frame, filename, info):
     osrt_base = prep_dir / "osrt"
     streed_pwc_base = prep_dir / "streed_pwc"
     streed_pwl_base = prep_dir / "streed_pwl"
@@ -21,9 +20,6 @@ def save_all_formats(bin_dir, prep_dir, frame, filename):
     streed_pwc_base.mkdir(exist_ok=True)
     streed_pwl_base.mkdir(exist_ok=True)
     all_base.mkdir(exist_ok=True)
-
-    with open(bin_dir / f"{filename}.json", "r") as info_json:
-        info = json.load(info_json)
 
     X_cat = frame.loc[:,info["categorized_cols"]]
     X_cont = frame.loc[:,info["continuous_cols"]]
@@ -79,12 +75,16 @@ def save_all_formats(bin_dir, prep_dir, frame, filename):
 def prepare_all(bin_dir: Path, prep_dir: Path):
     with open(bin_dir / "info.json", "r") as info_json:
         infos = json.load(info_json)
+    
+    scalability_info = []
 
     for info in infos:
         # if info["filename"] == 'household': continue
         print(f"Preparing data: {info['name']}")
         frame = pd.read_csv(bin_dir / (info['filename'] + ".csv"))
-        save_all_formats(bin_dir, prep_dir, frame, info["filename"])
+        with open(bin_dir / f'{info["filename"]}.json', "r") as info_json:
+            info = json.load(info_json)
+        save_all_formats(prep_dir, frame, info["filename"], info)
 
         # Make 5 train/test splits
         for sp_ix, split in enumerate(info["splits"]):
@@ -93,11 +93,59 @@ def prepare_all(bin_dir: Path, prep_dir: Path):
             test_file = split["test"]
             train = pd.read_csv(bin_dir / (train_file + ".csv"))
             test = pd.read_csv(bin_dir / (test_file + ".csv"))
-            save_all_formats(bin_dir, prep_dir, train, train_file)
-            save_all_formats(bin_dir, prep_dir, test, test_file)            
+            with open(bin_dir / f'{train_file}.json', "r") as info_json:
+                train_info = json.load(info_json)
+            with open(bin_dir / f'{test_file}.json', "r") as info_json:
+                test_info = json.load(info_json)
+            save_all_formats(prep_dir, train, train_file, train_info)
+            save_all_formats(prep_dir, test, test_file, test_info)
+        
+        # Make splits for feature scalability
+        if info["filename"] in ["seoul-bike"]:
+            original_bin_cols = info["binary_cols"]
+            original_bincat_cols = info["bincat_cols"]
+
+            for i in range(5):
+                # Random selection of binary columns to prevent dependency on dataset ordering
+                bin_cols = shuffle(original_bin_cols, random_state=42 + i)
+                for n in range(10, len(bin_cols), 10):
+                    print(f"Preparing data: {info['name']} - Feature scalability {i} {n}")
+                    info["binary_cols"] = bin_cols[:n]
+                    info["bincat_cols"] = [x for x in original_bincat_cols if x in info["binary_cols"]]
+                    filename = f'{info["filename"]}_{i}_{n}feat'
+                    save_all_formats(prep_dir, frame, filename, info)
+                    scalability_info.append({
+                        "original": info["filename"],
+                        "filename": filename,
+                        "iteration": i,
+                        "n": n,
+                        "type": "features"
+                    })
+            
+            # Reset for write after this
+            info["binary_cols"] = original_bin_cols
+            info["bincat_cols"] = original_bincat_cols
+
+        # Make splits for instance scalability
+        if info["filename"] == "household":
+            # Shuffle to prevent any dependency on dataset ordering
+            frame = frame.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            for n in np.logspace(2, 7, num=7-2, endpoint=False, base=10, dtype="int"):
+                print(f"Preparing data: {info['name']} - Instance scalability {n}")
+                filename = f'{info["filename"]}_size{n}'
+                save_all_formats(prep_dir, frame, filename, info)
+                scalability_info.append({
+                    "original": info["filename"],
+                    "filename": filename,
+                    "n": int(n),
+                    "type": "instances"
+                })
 
     with open(prep_dir / "info.json", "w") as info_json:
         json.dump(infos, info_json, indent=4)
+    with open(prep_dir / "info_scalability.json", "w") as info_json:
+        json.dump(scalability_info, info_json, indent=4)
         
 
 
