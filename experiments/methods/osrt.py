@@ -64,7 +64,7 @@ def parse_output(content, timeout: int, model_output_path, train_data, test_data
         loss_normalizer = float(
             re.search(loss_normalizer_pattern, content, re.M).group(1)
         )
-        with open(model_output_path) as f:
+        with open(model_output_path, encoding="utf-8") as f:
             models = json.load(f)
         classifier = TreeClassifier(models[0])
         props["train_r2"] = compute_r2(classifier, X_train, y_train, loss_normalizer)
