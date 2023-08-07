@@ -203,33 +203,31 @@ def _run_dtip(
                 print("MIP gap: ", gap * 100)
             return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
 
-    def get_yhat(_X):
-        yhat = []
-        for i in _X.index:
-            t = 1
-            while not t in leaf_nodes:
-                feature = np.argmax([f[i, t].X for i in features]) 
-                if _X.loc[i, _X.columns[feature]] < c[t].X:
-                    t *= 2
-                else: 
-                    t = t * 2 + 1
-            yhat.append(p[t].X)
-        yhat = pd.Series(yhat, index=_X.index)
-        return yhat
+        def get_yhat(_X):
+            yhat = []
+            for i in _X.index:
+                t = 1
+                while not t in leaf_nodes:
+                    feature = np.argmax([f[i, t].X for i in features]) 
+                    if _X.loc[i, _X.columns[feature]] < c[t].X:
+                        t *= 2
+                    else: 
+                        t = t * 2 + 1
+                yhat.append(p[t].X)
+            yhat = pd.Series(yhat, index=_X.index)
+            return yhat
 
-    train_yhat = get_yhat(train_X)
-    train_r2 = r2_score(train_y, train_yhat)
-    if verbose:
-        print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
-        print("Train R^2: ", train_r2)
+        train_yhat = get_yhat(train_X)
+        train_r2 = r2_score(train_y, train_yhat)
+        if verbose:
+            print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
+            print("Train R^2: ", train_r2)
 
-    test_yhat = get_yhat(test_X)
-    test_r2 = r2_score(test_y, test_yhat)
-    if verbose:
-        print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
-        print("Test R^2: ", test_r2)
-    
-    
+        test_yhat = get_yhat(test_X)
+        test_r2 = r2_score(test_y, test_yhat)
+        if verbose:
+            print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
+            print("Test R^2: ", test_r2)
     
     return {"time": duration, "train_r2": train_r2, "test_r2": test_r2, "leaves": 2**depth, "terminal_calls": -1}
 

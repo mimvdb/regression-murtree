@@ -180,31 +180,31 @@ def _run_ort(
             for t in leaf_nodes:
                 print("Leaf ", t, ": ", int(sum(zs[zs["leaf"] == t]["value"])), " instances")
 
-    n_branching_nodes = sum([d[i].X for i in branching_nodes])
+        n_branching_nodes = sum([d[i].X for i in branching_nodes])
 
-    train_r2 = r2_score(train_y, yhat)
-    if verbose:
-        print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
-        print("Train R^2: ", train_r2)
+        train_r2 = r2_score(train_y, yhat)
+        if verbose:
+            print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
+            print("Train R^2: ", train_r2)
 
-    ytest_hat = []
-    for i in _test_X.index:
-        t = 1
-        while not t in leaf_nodes:
-            if sum([a[t, p].X * test_X[i, p] for p in features]) <= b[t].X:
-                t *= 2
+        ytest_hat = []
+        for i in _test_X.index:
+            t = 1
+            while not t in leaf_nodes:
+                if sum([a[t, p].X * test_X[i, p] for p in features]) <= b[t].X:
+                    t *= 2
+                else:
+                    t = t * 2 + 1
+            if linear_model:
+                ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
             else:
-                t = t * 2 + 1
-        if linear_model:
-            ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
-        else:
-            ytest_hat.append(b0[t].X)
-    ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
+                ytest_hat.append(b0[t].X)
+        ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
 
-    test_r2 = r2_score(test_y, ytest_hat)
-    if verbose:
-        print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
-        print("Test R^2: ", test_r2)
+        test_r2 = r2_score(test_y, ytest_hat)
+        if verbose:
+            print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
+            print("Test R^2: ", test_r2)
 
     return {"time": duration, "train_r2": train_r2, "test_r2": test_r2, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
 
