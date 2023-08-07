@@ -15,6 +15,17 @@ REPEATS = 5
 SKIP_DATASETS = ["household"]
 
 
+def get_id(exp):
+    method = exp["method"]
+    if method == "streed_pwc":
+        method += f'_kmeans{exp["use_kmeans"]}_tasklb{exp["use_task_bound"]}_lb{exp["use_lower_bound"]}_terminal{exp["use_d2"]}'
+    elif method == "ort":
+        method += f'_l{exp["linear"]}_metric{exp["metric"]}'
+    data = exp["train_data"]
+    cp = 0.0 if method == "dtip" else exp["complexity_penalty"]
+    return (method, data, cp)
+
+
 def generate_experiments(depth, prev_timeouts):
     with open(SCRIPT_DIR / ".." / "data" / "prepared" / "info.json", "r") as info_json:
         infos = json.load(info_json)
@@ -70,10 +81,9 @@ def generate_experiments(depth, prev_timeouts):
                     "lasso_penalty": 0,
                     "metric": "MAE"
                 }
-                if ("streed_pwc_kmeans1_tasklb1_lb1_terminal1", data, cp) not in prev_timeouts: experiments.append(streed)
-                if ("osrt", data, cp) not in prev_timeouts: experiments.append(osrt)
-                if ("ort_lFalse_metricMAE", data, cp) not in prev_timeouts: experiments.append(ort)
-                if ("ort_lTrue_metricMAE", data, cp) not in prev_timeouts: experiments.append(ort_l)
+
+                for exp in [streed, osrt, ort, ort_l]:
+                    if get_id(exp) not in prev_timeouts: experiments.append(exp)
 
             dtip = {
                 "method": "dtip",
@@ -82,7 +92,7 @@ def generate_experiments(depth, prev_timeouts):
                 "train_data": data,
                 "test_data": data
             }
-            if ("dtip", data, 0.0) not in prev_timeouts: experiments.append(dtip)
+            if get_id(dtip) not in prev_timeouts: experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)
@@ -130,6 +140,7 @@ def write_timed_out(depth, prev_timeouts):
         for run in results:
             row = [run[attribute] for attribute in attributes]
             writer.writerow(row)
+    print(f"Wrote {len(results)} results for {len(prev_timeouts)} previous timeouts")
 
 
 if __name__ == "__main__":
@@ -148,7 +159,6 @@ if __name__ == "__main__":
         prev_timeouts = {(x["method"], x["train_data"], round(x["complexity_penalty"], 4)) for x in has_timeout.to_records()}
 
     write_timed_out(depth, prev_timeouts)
-    print(f"Wrote results for {len(prev_timeouts)} previous timeouts")
 
     experiments = generate_experiments(depth, prev_timeouts)
     print(f"Writing {len(experiments)} experiments to {args.out_file}")

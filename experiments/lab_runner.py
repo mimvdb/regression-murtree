@@ -84,7 +84,7 @@ if __name__ == "__main__":
             "",
             "compute",
             "01:00:00",  # Big chunk of time for running multiple experiments in one task
-            "16G",
+            "100G",
         )
     )
 
