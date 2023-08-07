@@ -68,7 +68,10 @@ def run_streed_pwc(
     use_task_bound,
     use_lower_bound,
     use_d2,  # TODO: add CLI param to streed to toggle terminal solver
+    leaf_nodes = None
 ):
+    if leaf_nodes is None:
+        leaf_nodes = 2**depth
     try:
         command = [
             exe,
@@ -83,7 +86,7 @@ def run_streed_pwc(
             "-max-depth",
             str(depth),
             "-max-num-nodes",
-            str(2**depth - 1),
+            str(leaf_nodes - 1),
             "-time",
             str(timeout + 10),
             "-use-lower-bound",
