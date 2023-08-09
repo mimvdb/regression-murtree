@@ -67,7 +67,7 @@ def run_streed_pwc(
     use_kmeans,
     use_task_bound,
     use_lower_bound,
-    use_d2,  # TODO: add CLI param to streed to toggle terminal solver
+    use_d2, 
     leaf_nodes = None
 ):
     if leaf_nodes is None:
@@ -89,6 +89,10 @@ def run_streed_pwc(
             str(leaf_nodes - 1),
             "-time",
             str(timeout + 10),
+            "-use-terminal-solver", 
+            "1" if use_d2 else "0",
+            "-use-branch-caching", "1",
+            "-similarity-lower-bound", "0",
             "-use-lower-bound",
             "1" if use_lower_bound else "0",
             "-use-task-lower-bound",

@@ -37,7 +37,7 @@ def generate_experiments(depth, prev_timeouts):
         if data in SKIP_DATASETS: continue
         for _ in range(REPEATS):
             for cp in CPS:
-                streed = {
+                streed_pwc = {
                     "method": "streed_pwc",
                     "timeout": TIMEOUT,
                     "depth": depth,
@@ -48,6 +48,30 @@ def generate_experiments(depth, prev_timeouts):
                     "use_kmeans": 1,
                     "use_task_bound": 1,
                     "use_lower_bound": 1,
+                    "use_d2": 1,
+                }
+                streed_pwc_without_d2 = {
+                    "method": "streed_pwc",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "complexity_penalty": cp,
+                    "tune": False,
+                    "use_kmeans": 1,
+                    "use_task_bound": 1,
+                    "use_lower_bound": 1,
+                    "use_d2": 0,
+                }
+                streed_pwl = {
+                    "method": "streed_pwl",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "complexity_penalty": cp,
+                    "tune": False,
+                    "lasso": 0,
                     "use_d2": 1,
                 }
                 osrt = {
@@ -82,7 +106,7 @@ def generate_experiments(depth, prev_timeouts):
                     "metric": "MAE"
                 }
 
-                for exp in [streed, osrt, ort, ort_l]:
+                for exp in [streed_pwc, streed_pwc_without_d2, streed_pwl, osrt, ort, ort_l]:
                     if get_id(exp) not in prev_timeouts: experiments.append(exp)
 
             dtip = {

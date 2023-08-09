@@ -21,7 +21,7 @@ def generate_experiments():
     for info in infos:
         data = info["filename"]
         for _ in range(REPEATS):
-            streed = {
+            streed_pwc = {
                 "method": "streed_pwc",
                 "timeout": TIMEOUT,
                 "depth": DEPTH,
@@ -33,6 +33,29 @@ def generate_experiments():
                 "use_task_bound": 1,
                 "use_lower_bound": 1,
                 "use_d2": 1,
+            }
+            streed_pwc_without_d2 = {
+                "method": "streed_pwc",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": data,
+                "test_data": data,
+                "complexity_penalty": 0.0001,
+                "tune": False,
+                "use_kmeans": 1,
+                "use_task_bound": 1,
+                "use_lower_bound": 1,
+                "use_d2": 0,
+            }
+            streed_pwl = {
+                "method": "streed_pwl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": data,
+                "test_data": data,
+                "complexity_penalty": 0.0001,
+                "tune": False,
+                "lasso": 0
             }
             osrt = {
                 "method": "osrt",
@@ -72,11 +95,13 @@ def generate_experiments():
                 "train_data": data,
                 "test_data": data
             }
-            experiments.append(streed)
+            experiments.append(streed_pwc)
+            experiments.append(streed_pwc_without_d2)
+            experiments.append(streed_pwl)
             experiments.append(osrt)
-            experiments.append(ort)
-            experiments.append(ort_l)
-            experiments.append(dtip)
+            #experiments.append(ort)
+            #experiments.append(ort_l)
+            #experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)
