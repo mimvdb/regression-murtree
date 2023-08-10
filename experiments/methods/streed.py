@@ -91,8 +91,6 @@ def run_streed_pwc(
             str(timeout + 10),
             "-use-terminal-solver", 
             "1" if use_d2 else "0",
-            "-use-branch-caching", "1",
-            "-similarity-lower-bound", "0",
             "-use-lower-bound",
             "1" if use_lower_bound else "0",
             "-use-task-lower-bound",
