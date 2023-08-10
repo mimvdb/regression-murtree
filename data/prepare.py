@@ -134,7 +134,8 @@ def prepare_all(bin_dir: Path, prep_dir: Path):
             for n in np.logspace(2, 7, num=7-2, endpoint=False, base=10, dtype="int"):
                 print(f"Preparing data: {info['name']} - Instance scalability {n}")
                 filename = f'{info["filename"]}_size{n}'
-                save_all_formats(prep_dir, frame, filename, info)
+                subset_frame = frame.iloc[:n]
+                save_all_formats(prep_dir, subset_frame, filename, info)
                 scalability_info.append({
                     "original": info["filename"],
                     "filename": filename,
