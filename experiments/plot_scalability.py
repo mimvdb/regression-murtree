@@ -32,10 +32,12 @@ files = ["results-after-fix-streed-d1-5.csv",
          "results-d3-p2.csv",
          "results-d4.csv",
          "results-d5.csv",
+         "results-d6.csv",
          "timeouts-d2.csv",
          "timeouts-d3.csv",
          "timeouts-d4.csv",
-         "timeouts-d5.csv"]
+         "timeouts-d5.csv",
+         "timeouts-d6.csv"]
 
 dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scalability/{file}") for file in files]
 scl_df = pd.concat(dfs)
@@ -135,7 +137,11 @@ _scl_df = _scl_df[_scl_df.apply(lambda x: instances_within_time_out.loc[x["train
 
 r = _scl_df.groupby(["train_data", "depth", "method"])["time"].mean().unstack("method")
 rel_perf = (r["OSRT"] / r["STreeD-CR"]).unstack("depth").mean()
-print(rel_perf)
+print("OSRT vs STreeD-CR", rel_perf)
+rel_perf = (r["OSRT"] / r["STreeD-CR"]).mean()
+print("OSRT vs STreeD-CR", rel_perf)
 
 rel_perf = (r["STreeD-CR (no d2)"] / r["STreeD-CR"]).unstack("depth").mean()
-print(rel_perf)
+print("No d2 vs with d2", rel_perf)
+rel_perf = (r["STreeD-CR (no d2)"] / r["STreeD-CR"]).mean()
+print("No d2 vs with d2", rel_perf)
