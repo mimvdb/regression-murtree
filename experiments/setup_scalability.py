@@ -134,7 +134,7 @@ def write_timed_out(depth, prev_timeouts):
             "train_data": data,
             "test_data": data,
             "complexity_penalty": cp,
-            "time": -1,
+            "time": TIMEOUT + 1,
             "train_r2": -1,
             "test_r2": -1,
             "leaves": -1,
