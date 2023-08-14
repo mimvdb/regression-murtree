@@ -13,7 +13,7 @@ if __name__ == "__main__":
         prog="Out of sample table generator",
         description="Generate out of sample table from results",
     )
-    parser.add_argument("--in-file", default=str(SCRIPT_DIR / "results.csv"))
+    parser.add_argument("--in-file", default=str(SCRIPT_DIR / "../results/results-tune.csv"))
     args = parser.parse_args()
 
     with open(SCRIPT_DIR / ".." / "data" / "prepared" / "info.json", "r") as info_json:
@@ -78,6 +78,6 @@ if __name__ == "__main__":
                 print(f"? {sep} % {method}")
             else:
                 result = f"{np.mean(split_results):.2f}"
-                if np.mean(split_results) + 1e-3 >= best_scores[info["filename"]]:
+                if round(np.mean(split_results), 2) >= round(best_scores[info["filename"]], 2):
                     result = "\\textbf{" + result + "}"
                 print(f"{result} {sep} % {method}")

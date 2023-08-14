@@ -6,14 +6,14 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 OUTPUT_TEX_TABLE = True
 
-df = pd.read_csv(SCRIPT_DIR / "results.csv")
+df = pd.read_csv(SCRIPT_DIR / "../results/results-tune.csv")
 df["dataset"] = df["train_data"].str.rsplit("_", n=2, expand=True)[0]
 
 df = df[df["dataset"] != "household"]
 
 df.loc[((df["method"] == "iai") | (df["method"] == "iai_l")) & (df["time"] > df["timeout"] * 2), "test_r2"] = -1 # * 2 because leniency for methods run locally
 
-#df = df[(df["method"] != "cart") & (df["method"] != "iai") & (df["method"] != "streed_pwc") & (df["method"] != "guide") & (df["method"] != "lr")]
+#df = df[(df["method"] != "cart") & (df["method"] != "iai") & (df["method"] != "streed_pwc") & (df["method"] != "guide") & (df["method"] != "lr")  & (df["method"] != "osrt")]
 #df = df[(df["method"] != "iai_l") & (df["method"] != "streed_pwl") & (df["method"] != "guide_l") & (df["method"] != "lr")]
 
 print("\n * Mean Test R2 * \n")
@@ -99,7 +99,7 @@ if OUTPUT_TEX_TABLE:
             continue
         best_scores = means.max(axis=1)
         scores = means[m]
-        wins = sum(scores + 1e-3 >= best_scores)
+        wins = sum(round(scores, 2) >= round(best_scores, 2))
         print(f"{wins} {sep} % {method}")
 
     print("Best overall &")
@@ -115,6 +115,6 @@ if OUTPUT_TEX_TABLE:
             continue
         best_scores = means.max(axis=1)
         scores = means[m]
-        wins = sum(scores + 1e-3 >= best_scores)
+        wins = sum(round(scores, 2) >= round(best_scores, 2))
         print(f"{wins} {sep} % {method}")
 
