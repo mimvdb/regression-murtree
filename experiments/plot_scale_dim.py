@@ -6,7 +6,10 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
-df = pd.read_csv(SCRIPT_DIR / "results.csv")
+df = pd.read_csv(SCRIPT_DIR / ".." / "results" / "results-scale-dim-d4.csv")
+df = df[df["time"] < df["timeout"]]
+df = df[df["time"] > 0]
+
 df["method"].replace({"streed_pwc_kmeans1_tasklb1_lb1_terminal1": "STreeD-CR",
                       "streed_pwc_kmeans1_tasklb1_lb1_terminal0": "STreeD-CR (no d2)",
                       "osrt": "OSRT",
@@ -52,7 +55,7 @@ gf.set_xlabel("Number of features")
 gf.set_yscale("log")
 gf.set_xlim(left=10, right=50)
 
-sns.move_legend(gn, "upper left", bbox_to_anchor=(0, 1), ncol=1, title="", frameon=True)
+sns.move_legend(gn, "lower right", bbox_to_anchor=(1, 0), ncol=1, title="", frameon=True)
 
 plt.tight_layout()
 
