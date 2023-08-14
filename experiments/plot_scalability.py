@@ -21,27 +21,27 @@ plt.rc('ps',fonttype = 42)
 plt.rc('text', usetex = False)
 sns.set_palette("colorblind")
 
-files = ["results-after-fix-streed-d1-5.csv",
-         "results-d1-p1.csv",
-         "results-d1-p2.csv",
-         "results-d1-p3.csv",
-         "results-d2-p1.csv",
-         "results-d2-p2.csv",
-         "results-d2-p3.csv",
-         "results-d3-p1.csv",
-         "results-d3-p2.csv",
-         "results-d4.csv",
-         "results-d5.csv",
-         "results-d6.csv",
-         "timeouts-d2.csv",
-         "timeouts-d3.csv",
-         "timeouts-d4.csv",
-         "timeouts-d5.csv",
-         "timeouts-d6.csv"]
+# files = ["results-after-fix-streed-d1-5.csv",
+#          "results-d1-p1.csv",
+#          "results-d1-p2.csv",
+#          "results-d1-p3.csv",
+#          "results-d2-p1.csv",
+#          "results-d2-p2.csv",
+#          "results-d2-p3.csv",
+#          "results-d3-p1.csv",
+#          "results-d3-p2.csv",
+#          "results-d4.csv",
+#          "results-d5.csv",
+#          "results-d6.csv",
+#          "timeouts-d2.csv",
+#          "timeouts-d3.csv",
+#          "timeouts-d4.csv",
+#          "timeouts-d5.csv",
+#          "timeouts-d6.csv"]
 
-dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scalability/{file}") for file in files]
-scl_df = pd.concat(dfs)
-#scl_df = pd.read_csv(SCRIPT_DIR / "../results/results-scale.csv")
+# dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scalability/{file}") for file in files]
+# scl_df = pd.concat(dfs)
+scl_df = pd.read_csv(SCRIPT_DIR / "../results/results-scale.csv")
 
 scl_df["method"].replace({
         "streed_pwc_kmeans1_tasklb1_lb1_terminal0": "STreeD-CR (no d2)",
