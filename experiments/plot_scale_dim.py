@@ -38,25 +38,33 @@ sns.set_palette("colorblind")
 
 fig, (ax_n, ax_f) = plt.subplots(2, 1, figsize=(3.30 + 0.2, 3))
 
+method_order = ["STreeD-CR", "STreeD-CR (no d2)", "STreeD-LR", "OSRT"]
 gn = sns.lineplot(data=df_n, x="instances", y="time", ax=ax_n,
-              hue="method")
+              hue="method", hue_order=method_order,
+              style="method", style_order=method_order)
 
 gf = sns.lineplot(data=df_f, x="features", y="time", ax=ax_f,
-              hue="method", legend=False)
+              hue="method",  hue_order=method_order,
+              style="method", style_order=method_order,
+              legend=False)
 
 gn.set_ylabel("Run time (s)")
 gn.set_xlabel("Number of instances")
 gn.set_xscale("log")
 gn.set_yscale("log")
 gn.set_xlim(left=100, right=1e6)
+gn.set_ylim(0.1, 1000)
 
 gf.set_ylabel("Run time (s)")
 gf.set_xlabel("Number of features")
 gf.set_yscale("log")
 gf.set_xlim(left=10, right=50)
+gf.set_ylim(0.1, 1000)
 
-sns.move_legend(gn, "lower right", bbox_to_anchor=(1, 0), ncol=1, title="", frameon=True)
 
+sns.move_legend(gn, "lower left", bbox_to_anchor=(0, 1), ncol=2, title="", frameon=True)
+
+#plt.subplots_adjust(top=0.9, hspace=0, wspace=0)
 plt.tight_layout()
 
 #plt.show()
