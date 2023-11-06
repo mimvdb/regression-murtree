@@ -35,39 +35,40 @@ class DTIPScaler:
         for c_ix, c in enumerate(X.columns):
             y = _y.copy()
             x = X[c]
-            x = x.drop_duplicates().sort_values()
+            x = x.sort_values()
+            #x = x.drop_duplicates().sort_values()
             y = y[x.index]
             
-            removes = []
+            thresholds = []
             for i, ix in enumerate(x.index):
-                if i == 0: 
-                    prev = ix
-                    continue
-                if y[ix] == y[prev]:
-                    removes.append(ix)
-            x = x.drop(index=removes)
-            #y = y.drop(index=removes)
+                if i > 0 and y[ix] != y[prev] and x[ix] != x[prev]:
+                    threshold = (x[ix] + x[prev]) / 2
+                    if not threshold in thresholds:
+                        thresholds.append(threshold)
+                prev = ix
             
-            if len(x) == 1:
+            if len(thresholds) == 0:
                 bins = [(-np.inf, np.inf)]
             else:
-                bins = [(-np.inf, (x.iloc[0] + x.iloc[1]) / 2)] \
-                    + [((x.iloc[i] + x.iloc[i+1]) / 2, (x.iloc[i+1] + x.iloc[i+2]) / 2) for i in range(len(x) - 2)] \
-                    + [((x.iloc[-2] + x.iloc[-1]) / 2, np.inf)] 
+                bins = [(-np.inf, thresholds[0])] \
+                    + [(thresholds[i], thresholds[i+1]) for i in range(len(thresholds) - 1)] \
+                    + [(thresholds[-1], np.inf)] 
                 
             _x = X[c]
             counts = [sum((_x >= b[0]) & (_x < b[1])) for b in bins]
-            count_sort = np.argsort(counts)[::-1]
-            labels = np.zeros((len(count_sort,)))
-            last_label = 0
-            for i, ix in enumerate(count_sort):
-                labels[ix] = last_label
-                if last_label <= 0:
-                    last_label = last_label * -1 + 1
-                else:
-                    last_label *= -1
+            #count_sort = np.argsort(counts)[::-1]
+            #labels = np.zeros((len(count_sort,)))
+            #last_label = 0
+            #for i, ix in enumerate(count_sort):
+            #   labels[ix] = last_label
+            #    if last_label <= 0:
+            #        last_label = last_label * -1 + 1
+            #    else:
+            #        last_label *= -1
             self.bins.append([])
-            for bn, count, label in zip(bins, counts, labels):
+            #for bn, count, label in zip(bins, counts, labels):
+            #    self.bins[c_ix].append(Bin(bn[0], bn[1], count, label))
+            for label, (bn, count) in enumerate(zip(bins, counts)):
                 self.bins[c_ix].append(Bin(bn[0], bn[1], count, label))
 
     def _transform(self, c_ix, v):
@@ -196,12 +197,7 @@ def _run_dtip(
         
         duration = time.time() - start_time
 
-        if model.Status == GRB.TIME_LIMIT:
-            gap = model.MIPGap
-            if verbose:
-                print("Time out")
-                print("MIP gap: ", gap * 100)
-            return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
+        
 
         def get_yhat(_X):
             yhat = []
@@ -217,7 +213,18 @@ def _run_dtip(
             yhat = pd.Series(yhat, index=_X.index)
             return yhat
 
-        train_yhat = get_yhat(train_X)
+        try:
+            train_yhat = get_yhat(train_X)
+        except:
+            if model.Status == GRB.TIME_LIMIT:
+                gap = model.MIPGap
+                if verbose:
+                    print("Time out")
+                    print("MIP gap: ", gap * 100)
+                return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
+            else:
+                raise Exception("No solution found!")
+
         train_r2 = r2_score(train_y, train_yhat)
         if verbose:
             print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)

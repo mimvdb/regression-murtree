@@ -18,7 +18,7 @@ def generate_experiments():
     experiments = []
 
     for info in infos:
-        if info["filename"] not in ["household"]: continue
+        if info["filename"] in ["household"]: continue
         if "splits" not in info:
             print(f"Skipping dataset: {info['filename']}. It does not contain splits")
             continue
@@ -99,16 +99,49 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
             }
-            
-            experiments.append(lr)
-            experiments.append(cart)
-            experiments.append(guide)
-            experiments.append(guide_l)
-            # experiments.append(streed_pwc)
+            ort = {
+                    "method": "ort",
+                    "timeout": TIMEOUT,
+                    "depth": DEPTH,
+                    "train_data":  split["train"],
+                    "test_data": split["test"],
+                    "complexity_penalty": 0,
+                    "linear": False,
+                    "lasso_penalty": 0,
+                    "metric": "MAE"
+                }
+            ort_l = {
+                    "method": "ort",
+                    "timeout": TIMEOUT,
+                    "depth": DEPTH_L,
+                    "train_data":  split["train"],
+                    "test_data": split["test"],
+                    "complexity_penalty": 0,
+                    "linear": True,
+                    "lasso_penalty": 0,
+                    "metric": "MAE"
+                }
+            dtip = {
+                "method": "dtip",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data":  split["train"],
+                "test_data": split["test"],
+            }
+
+            #experiments.append(lr)
+            #experiments.append(cart)
+            #experiments.append(guide)
+            #experiments.append(guide_l)
+            #experiments.append(streed_pwc)
             # experiments.append(streed_pwl)
             # experiments.append(osrt)
             # experiments.append(iai)
             # experiments.append(iai_l)
+            
+            experiments.append(ort)
+            experiments.append(ort_l)
+            experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)

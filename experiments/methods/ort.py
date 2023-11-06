@@ -54,12 +54,13 @@ def _run_ort(
         "TimeLimit": time_limit,
         "MemLimit": 75
     }
-    with Env(params=params) as env, Model('DTIP', env=env) as model:
+    with Env(params=params) as env, Model('ORT', env=env) as model:
         datapoints = _train_X.index
         features = list(range(0, F))
         branching_nodes = [i for i in range(1, 2**depth)]
         leaf_nodes = [2**depth + i for i in range(0, 2**depth)]
-
+        
+        # Data point i ends up in leaf node t
         z = model.addVars(datapoints, leaf_nodes, vtype=GRB.BINARY, name='z')
         d = model.addVars(branching_nodes, vtype=GRB.BINARY, lb=1, name='d')
         a = model.addVars(branching_nodes, features, vtype=GRB.BINARY, name='a')
@@ -166,14 +167,20 @@ def _run_ort(
 
         duration = time.time() - start_time
 
-        if model.Status == GRB.TIME_LIMIT:
-            gap = model.MIPGap
-            if verbose:
-                print("Time out")
-                print("MIP gap: ", gap * 100)
-            return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
+        
 
-        yhat = pd.Series(model.getAttr("X", f))
+        try:
+            yhat = pd.Series(model.getAttr("X", f))
+        except:
+            if model.Status == GRB.TIME_LIMIT:
+                gap = model.MIPGap
+                if verbose:
+                    print("Time out")
+                    print("MIP gap: ", gap * 100)
+                return {"time": time_limit + 1, "train_r2": -1, "test_r2": -1, "leaves": -1, "terminal_calls": -1}
+            else:
+                raise Exception("No solution found")
+
         zs = model.getAttr("X", z)
         zs = pd.DataFrame({"ix": i, "leaf": j, 'value': z[i,j].X} for (i,j) in zs)
         if verbose:
@@ -188,13 +195,15 @@ def _run_ort(
             print("Train R^2: ", train_r2)
 
         ytest_hat = []
+        instances_per_leaf = {t: 0 for t in leaf_nodes}
         for i in _test_X.index:
             t = 1
             while not t in leaf_nodes:
-                if sum([a[t, p].X * test_X[i, p] for p in features]) <= b[t].X:
-                    t *= 2
+                if sum([a[t, p].X * (test_X[i, p]+ eps[p])  for p in features]) <= b[t].X:
+                    t = t * 2
                 else:
                     t = t * 2 + 1
+            instances_per_leaf[t] += 1
             if linear_model:
                 ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
             else:
@@ -205,6 +214,9 @@ def _run_ort(
         if verbose:
             print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
             print("Test R^2: ", test_r2)
+
+            for t in leaf_nodes:
+                print("Leaf ", t, ": ", instances_per_leaf[t], " instances")
 
     return {"time": duration, "train_r2": train_r2, "test_r2": test_r2, "leaves": int(n_branching_nodes + 1), "terminal_calls": -1}
 
