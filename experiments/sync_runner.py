@@ -9,27 +9,13 @@ from methods.osrt import run_osrt
 from methods.ort import run_ort
 from methods.dtip import run_dtip
 from methods.iai import run_iai, run_iai_l
+from methods.paths import SCRIPT_DIR, OSRT_PATH, STREED_PATH, GUIDE_PATH
 
 # from methods.iai import run_iai
-from pathlib import Path
 import csv
 import json
 import argparse
 from typing import List
-
-SCRIPT_DIR = Path(__file__).parent.resolve()
-OSRT_PATH = (
-    SCRIPT_DIR
-    / ".."
-    / ".."
-    / "optimal-sparse-regression-tree-public"
-    / "build"
-    / "osrt"
-)  # SCRIPT_DIR / "osrt"
-STREED_PATH = (
-    SCRIPT_DIR / ".." / ".." / "streed2" / "build" / "STREED"
-)  # SCRIPT_DIR / "STREED"
-GUIDE_PATH = SCRIPT_DIR / "methods" / "misc" / "guide"
 
 
 def run_experiments(experiments: List):
@@ -95,7 +81,7 @@ def run_experiments(experiments: List):
             result = run_dtip(e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "dtip"
         elif e["method"] == "cart":
-            result = run_cart(e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result = run_cart(e["timeout"], e["depth"], e["train_data"], e["test_data"], e["tune"])
             result["method"] = "cart"
         elif e["method"] == "lr":
             result = run_lr(e["train_data"], e["test_data"])
@@ -107,10 +93,10 @@ def run_experiments(experiments: List):
             result = run_guide_l(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "guide_l"
         elif e["method"] == "iai":
-            result = run_iai(e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result = run_iai(e["timeout"], e["depth"], e["train_data"], e["test_data"], e["tune"], e["complexity_penalty"])
             result["method"] = "iai"
         elif e["method"] == "iai_l":
-            result = run_iai_l(e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result = run_iai_l(e["timeout"], e["depth"], e["train_data"], e["test_data"], e["tune"], e["complexity_penalty"])
             result["method"] = "iai_l"
 
         result["timeout"] = e["timeout"]

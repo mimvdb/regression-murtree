@@ -8,7 +8,7 @@ import random
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 MIN_DEPTH = 2
-MAX_DEPTH = 5
+MAX_DEPTH = 8
 TIMEOUT = 60 * 15
 
 def generate_experiments():
@@ -18,7 +18,7 @@ def generate_experiments():
     experiments = []
 
     for info in infos:
-        if info["filename"] not in ["airfoil", "real-estate"]: continue
+        if info["filename"] not in ["airfoil"]: continue
         if "splits" not in info:
             print(f"Skipping dataset: {info['filename']}. It does not contain splits")
             continue
@@ -37,7 +37,8 @@ def generate_experiments():
                     "timeout": TIMEOUT,
                     "depth": depth,
                     "train_data": split["train"],
-                    "test_data": split["test"],
+                    "test_data": split["train"],
+                    "tune": False
                 }
                 guide = {
                     "method": "guide",
@@ -51,9 +52,9 @@ def generate_experiments():
                     "timeout": TIMEOUT,
                     "depth": depth,
                     "train_data": split["train"],
-                    "test_data": split["test"],
+                    "test_data": split["train"],
                     "complexity_penalty": 0,
-                    "tune": True,
+                    "tune": False,
                     "use_kmeans": 1,
                     "use_task_bound": 1,
                     "use_lower_bound": 1,
@@ -73,7 +74,8 @@ def generate_experiments():
                     "timeout": TIMEOUT,
                     "depth": depth,
                     "train_data": split["train"],
-                    "test_data": split["test"],
+                    "test_data": split["train"],
+                    "tune": False
                 }
 
                 guide_l = {
@@ -103,12 +105,12 @@ def generate_experiments():
                 
                 # experiments.append(lr)
                 experiments.append(cart)
-                experiments.append(guide)
+                #experiments.append(guide)
                 # experiments.append(guide_l)
                 experiments.append(streed_pwc)
                 # experiments.append(streed_pwl)
                 # experiments.append(osrt)
-                # experiments.append(iai)
+                experiments.append(iai)
                 # experiments.append(iai_l)
 
     # Randomize experiment order so no methods gets an unfair advantage on average

@@ -27,7 +27,8 @@ if __name__ == "__main__":
             print(f"Reading errors: {file}")
             with open(Path(dirpath) / file, "r") as err_file:
                 errors.append(err_file.read())
-
-
-    with open(args.out_file, "w") as f:
-        f.write("\n".join(errors))
+    if len(errors) == 0:
+        print("No errors found!")
+    else:
+        with open(args.out_file, "w") as f:
+            f.write("\n".join(errors))

@@ -18,7 +18,7 @@ plt.rc('axes', labelsize='small', grid=True)
 plt.rc('legend', fontsize='x-small')
 plt.rc('pdf',fonttype = 42)
 plt.rc('ps',fonttype = 42)
-plt.rc('text', usetex = False)
+plt.rc('text', usetex = True)
 sns.set_palette("colorblind")
 
 # files = ["results-after-fix-streed-d1-5.csv",

@@ -5,19 +5,16 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
 
-from methods.misc.util import load_data_cont_bincat
+from methods.misc.util import load_data_cont_bincat, load_data_bin_bincat
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
-def run_cart(timeout, depth, train_data, test_data, leaf_nodes=None, tune=True):
+def run_cart(timeout, depth, train_data, test_data, tune=True):
     X_train, y_train, train_info = load_data_cont_bincat(train_data)
     X_test, y_test, test_info = load_data_cont_bincat(test_data)
 
-    if leaf_nodes is None:
-        leaf_nodes = 2**depth
-
-    parameters = {"max_depth": [depth], 'max_leaf_nodes': [leaf_nodes]}
+    parameters = {"max_depth": [depth]}
     total_train_var = np.std(y_train) * np.std(y_train)
 
     start_time = time.time() # Start timer after reading data
@@ -35,7 +32,7 @@ def run_cart(timeout, depth, train_data, test_data, leaf_nodes=None, tune=True):
         tuning_model.fit(X_train, y_train)
         reg = DecisionTreeRegressor(**tuning_model.best_params_)
     else:
-        reg = DecisionTreeRegressor(max_depth=depth, max_leaf_nodes=leaf_nodes)
+        reg = DecisionTreeRegressor(max_depth=depth)
         
     reg.fit(X_train, y_train)
 

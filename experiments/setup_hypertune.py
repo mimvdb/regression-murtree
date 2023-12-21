@@ -37,6 +37,7 @@ def generate_experiments():
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
+                "tune": True
             }
             guide = {
                 "method": "guide",
@@ -73,6 +74,8 @@ def generate_experiments():
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
+                "tune": True,
+                "complexity_penalty": 0.0
             }
 
             guide_l = {
@@ -89,7 +92,7 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
                 "complexity_penalty": 0,
-                "lasso": 0.999,
+                "lasso": 0,
                 "tune": True,
             }
             iai_l = {
@@ -98,6 +101,8 @@ def generate_experiments():
                 "depth": DEPTH_L,
                 "train_data": split["train"],
                 "test_data": split["test"],
+                "tune": True,
+                "complexity_penalty": 0.0
             }
             ort = {
                     "method": "ort",
@@ -129,19 +134,19 @@ def generate_experiments():
                 "test_data": split["test"],
             }
 
-            #experiments.append(lr)
-            #experiments.append(cart)
-            #experiments.append(guide)
-            #experiments.append(guide_l)
-            #experiments.append(streed_pwc)
-            # experiments.append(streed_pwl)
-            # experiments.append(osrt)
-            # experiments.append(iai)
-            # experiments.append(iai_l)
+            experiments.append(lr)
+            experiments.append(cart)
+            experiments.append(guide)
+            experiments.append(guide_l)
+            experiments.append(streed_pwc)
+            experiments.append(streed_pwl)
+            experiments.append(osrt)
+            experiments.append(iai)
+            experiments.append(iai_l)
             
-            experiments.append(ort)
-            experiments.append(ort_l)
-            experiments.append(dtip)
+            #experiments.append(ort)
+            #experiments.append(ort_l)
+            #experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)
