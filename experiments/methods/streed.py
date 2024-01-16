@@ -125,6 +125,58 @@ def run_streed_pwc(
             "terminal_calls": -1,
         }
 
+def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, tune):
+    with open(PREFIX_DATA_PWL / ".." / (train_data + ".json"), "r") as json_file:
+        info = json.load(json_file)
+        continuous_features = info["continuous_features"]
+
+    try:
+        command = [
+            exe,
+            "-task",
+            "simple-linear-regression",
+            "-hyper-tune",
+            "1" if tune else "0",
+            "-file",
+            str(PREFIX_DATA_PWL / (train_data + ".csv")),
+            "-test-file",
+            str(PREFIX_DATA_PWL / (test_data + ".csv")),
+            "-max-depth",
+            str(depth),
+            "-max-num-nodes",
+            str(2**depth - 1),
+            "-time",
+            str(timeout + 10),
+            "-cost-complexity",
+            str(cp),
+            "-num-extra-cols",
+            str(continuous_features)
+        ]
+
+        # Add timeout, if not running on windows
+        # (Windows timeout command is different)
+        if os.name != "nt":
+            command = ["timeout", str(timeout)] + command
+
+        print(" ".join(command))
+        result = subprocess.check_output(command, timeout=timeout)
+        output = result.decode()
+        # print(output)
+        parsed = parse_output(output, timeout, train_data, test_data)
+        return parsed
+    except subprocess.TimeoutExpired as e:
+        # print(e.stdout.decode())
+        return parse_output("", timeout, train_data, test_data)
+    except subprocess.CalledProcessError as e:
+        print(e.stdout.decode(), file=sys.stderr, flush=True)
+        return {
+            "time": -1,
+            "train_r2": -1,
+            "test_r2": -1,
+            "leaves": -1,
+            "terminal_calls": -1,
+        }
+
 
 def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
     with open(PREFIX_DATA_PWL / ".." / (train_data + ".json"), "r") as json_file:

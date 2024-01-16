@@ -78,12 +78,28 @@ def generate_experiments():
                 "complexity_penalty": 0.0
             }
 
+            guide_sl = {
+                "method": "guide_sl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH_L,
+                "train_data": split["train"],
+                "test_data": split["test"],
+            }
             guide_l = {
                 "method": "guide_l",
                 "timeout": TIMEOUT,
                 "depth": DEPTH_L,
                 "train_data": split["train"],
                 "test_data": split["test"],
+            }
+            streed_pwsl = {
+                "method": "streed_pwsl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH_L,
+                "train_data": split["train"],
+                "test_data": split["test"],
+                "complexity_penalty": 0,
+                "tune": True,
             }
             streed_pwl = {
                 "method": "streed_pwl",
@@ -134,15 +150,17 @@ def generate_experiments():
                 "test_data": split["test"],
             }
 
-            experiments.append(lr)
-            experiments.append(cart)
-            experiments.append(guide)
-            experiments.append(guide_l)
-            experiments.append(streed_pwc)
-            experiments.append(streed_pwl)
-            experiments.append(osrt)
-            experiments.append(iai)
-            experiments.append(iai_l)
+            #experiments.append(lr)
+            #experiments.append(cart)
+            #experiments.append(guide)
+            experiments.append(guide_sl)
+            #experiments.append(guide_l)
+            #experiments.append(streed_pwc)
+            #experiments.append(streed_pwsl)
+            #experiments.append(streed_pwl)
+            #experiments.append(osrt)
+            #experiments.append(iai)
+            #experiments.append(iai_l)
             
             #experiments.append(ort)
             #experiments.append(ort_l)

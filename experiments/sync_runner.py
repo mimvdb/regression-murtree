@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 # Runs a set of experiments in the specified file
 
-from methods.guide import run_guide, run_guide_l
+from methods.guide import run_guide, run_guide_l, run_guide_sl
 from methods.lr import run_lr
 from methods.cart import run_cart
-from methods.streed import run_streed_pwc, run_streed_pwl
+from methods.streed import run_streed_pwc, run_streed_pwl, run_streed_pwsl
 from methods.osrt import run_osrt
 from methods.ort import run_ort
 from methods.dtip import run_dtip
@@ -42,6 +42,17 @@ def run_experiments(experiments: List):
                 result[
                     "method"
                 ] += f'_kmeans{e["use_kmeans"]}_tasklb{e["use_task_bound"]}_lb{e["use_lower_bound"]}_terminal{e["use_d2"]}'
+        elif e["method"] == "streed_pwsl":
+            result = run_streed_pwsl(
+                str(STREED_PATH),
+                e["timeout"],
+                e["depth"],
+                e["train_data"],
+                e["test_data"],
+                e["complexity_penalty"],
+                e["tune"],
+            )
+            result["method"] = f"streed_pswl"
         elif e["method"] == "streed_pwl":
             result = run_streed_pwl(
                 str(STREED_PATH),
@@ -89,6 +100,9 @@ def run_experiments(experiments: List):
         elif e["method"] == "guide":
             result = run_guide(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "guide"
+        elif e["method"] == "guide_sl":
+            result = run_guide_sl(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
+            result["method"] = "guide_sl"
         elif e["method"] == "guide_l":
             result = run_guide_l(str(GUIDE_PATH), e["timeout"], e["depth"], e["train_data"], e["test_data"])
             result["method"] = "guide_l"
