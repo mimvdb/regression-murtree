@@ -7,8 +7,8 @@ from matplotlib.ticker import MaxNLocator
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
-WIDTH = 3.3249 + 0.2
-HEIGTH = 1.6
+WIDTH = 3.3249 + 0.1
+HEIGTH = 1.7
 
 df = pd.read_csv(SCRIPT_DIR / "../results/results-inc-node.csv")
 df["dataset"] = df["train_data"].str.rsplit("_", n=2, expand=True)[0]
@@ -17,13 +17,13 @@ n_cols = len(df["dataset"].unique())
 n_methods = len(df["method"].unique())
 df["dataset"] = df["dataset"].replace({"airfoil": "Airfoil", "real-estate": "Real Estate Evaluation"})
 df["method"] = df["method"].replace({"cart": "CART", "iai": "IAI", "guide": "GUIDE", 
-                                     "streed_pwc_kmeans1_tasklb1_lb1_terminal1": "STreeD-CR",
+                                     "streed_pwc_kmeans1_tasklb1_lb1_terminal1": "SRT-C",
                                      "cart-bin": "CART (Binary)",
                                      "iai-bin": "IAI (Binary)"})
 df["method_org"] = df["method"].str.replace(" (Binary)", "", regex=False)
 
 df["binary"] = df["method"].apply(lambda x: "Binary" if x.endswith("(Binary)") else "Original")
-df.loc[df["method"] == "STreeD-CR", "binary"] = "Binary"
+df.loc[df["method"] == "SRT-C", "binary"] = "Binary"
 
 sns.set_context('paper')
 plt.rc('font', size=10, family='serif')
@@ -41,8 +41,7 @@ sns.set_palette("colorblind")
 rel = sns.relplot(
     data=df, x="depth", y="test_r2",
     col="dataset", hue="method_org", style="binary",
-    #hue_order=["STreeD-CR", "IAI", "IAI (Binary)", "CART", "CART (Binary)"],
-    hue_order=["STreeD-CR", "IAI", "CART"],
+    hue_order=["SRT-C", "IAI", "CART"],
     style_order=["Binary", "Original"],
     kind="line",
     height = HEIGTH, aspect=WIDTH / HEIGTH ,
@@ -55,18 +54,14 @@ for ax in rel.fig.axes:
     ax.set_xlim(2,7)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    ax.legend(ax.lines, ["STreeD-CR", "IAI (Binary)", "IAI", "CART (Binary)", "CART"])
+    ax.legend(ax.lines, ["SRT-C", "IAI (Binary)", "IAI", "CART (Binary)", "CART"])
 
     
 
 rel.set_xlabels("Maximum depth")
 rel.set_ylabels("$R^2$ score (Train)")
-#rel.set_titles("{col_name}")
 rel.set_titles("")
 
-#sns.move_legend(rel, "upper center", bbox_to_anchor=(0.55, 0.87), ncol=n_methods, title="", frameon=True)
-#sns.move_legend(rel, "upper left", bbox_to_anchor=(0.17, 0.97), ncol=1, title="", frameon=True)
 
 plt.tight_layout()
 plt.savefig(SCRIPT_DIR / "plot" / "fig-inc-nodes.pdf", bbox_inches="tight", pad_inches = 0.03)
-#plt.show()

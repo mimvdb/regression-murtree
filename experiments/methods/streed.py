@@ -91,6 +91,8 @@ def run_streed_pwc(
             str(timeout + 10),
             "-use-terminal-solver", 
             "1" if use_d2 else "0",
+            "-use-similarity-lower-bound", "1",
+            "-use-upper-bound", "1",
             "-use-lower-bound",
             "1" if use_lower_bound else "0",
             "-use-task-lower-bound",
@@ -125,7 +127,7 @@ def run_streed_pwc(
             "terminal_calls": -1,
         }
 
-def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, tune):
+def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, ridge, tune, use_d2):
     with open(PREFIX_DATA_PWL / ".." / (train_data + ".json"), "r") as json_file:
         info = json.load(json_file)
         continuous_features = info["continuous_features"]
@@ -150,7 +152,14 @@ def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, tune):
             "-cost-complexity",
             str(cp),
             "-num-extra-cols",
-            str(continuous_features)
+            str(continuous_features),
+            "-min-leaf-node-size",
+            "10",
+            "-ridge-penalty",
+            str(ridge),
+            "-use-dataset-caching", "1", 
+            "-use-branch-caching", "0",
+            "-use-terminal-solver", str(use_d2)
         ]
 
         # Add timeout, if not running on windows
@@ -178,7 +187,7 @@ def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, tune):
         }
 
 
-def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
+def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, ridge, tune):
     with open(PREFIX_DATA_PWL / ".." / (train_data + ".json"), "r") as json_file:
         info = json.load(json_file)
         continuous_features = info["continuous_features"]
@@ -204,10 +213,14 @@ def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, tune):
             str(cp),
             "-lasso-penalty",
             str(lasso),
+            "-ridge-penalty",
+            str(ridge),
             "-num-extra-cols",
             str(continuous_features),
             "-min-leaf-node-size",
-            str(continuous_features*10)
+            str(continuous_features*10),
+            "-use-dataset-caching", "1", 
+            "-use-branch-caching", "0"
         ]
 
         # Add timeout, if not running on windows

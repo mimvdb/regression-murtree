@@ -113,8 +113,8 @@ def _run_dtip(
     N = train_X.shape[0]
     F = train_X.shape[1]
 
-    total_train_var = train_y.std()**2
-    total_test_var = test_y.std()**2
+    total_train_var = N * train_y.std()**2
+    total_test_var = N * test_y.std()**2
 
     params = {
         "LogToConsole": True,

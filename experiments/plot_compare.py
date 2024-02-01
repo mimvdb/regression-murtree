@@ -51,29 +51,35 @@ for i, m1 in enumerate(methods):
 
         diff = m1_r2 - m2_r2
         med = diff.median()
-        _, p = wilcoxon(diff)
-        if p >=  0.05: 
-            print(f"{m1} = {m2}, m = {med}, p = {p}")
+        if max(abs(diff)) <= 1e-6:
+               print(f"{m1} = {m2}, m = {med}, p = 1.0")
         else:
-            _, p_less = wilcoxon(diff, alternative='less')
-            _, p_greater = wilcoxon(diff, alternative='greater')
-            if p_less < p_greater:
-                print(f"{m1} < {m2}, m = {med}, p = {p}")
+            _, p = wilcoxon(diff)
+            if p >=  0.05: 
+                print(f"{m1} = {m2}, m = {med}, p = {p}")
             else:
-                print(f"{m1} > {m2}, m = {med}, p = {p}")
+                _, p_less = wilcoxon(diff, alternative='less')
+                _, p_greater = wilcoxon(diff, alternative='greater')
+                if p_less < p_greater:
+                    print(f"{m1} < {m2}, m = {med}, p = {p}")
+                else:
+                    print(f"{m1} > {m2}, m = {med}, p = {p}")
 
 
 if OUTPUT_TEX_TABLE:
     print("")
-    method_order = ["LR", "CART", "GUIDE", "IAI", "OSRT", "STreeD (PWC)", "GUIDE-L", "IAI-L", "STreeD (PWL)"]
+    method_order = ["LR", "CART", "GUIDE", "IAI", "OSRT", "SRT-C", "GUIDE-SL", "SRT-SL", "GUIDE-L", "IAI-L", "SRT-L (Lasso)", "SRT-L (Elastic Net)"]
     method_map = {
         "LR": "lr",
         "CART": "cart",
         "GUIDE": "guide",
+        "GUIDE-SL": "guide_l",
         "GUIDE-L": "guide_l",
         "OSRT": "osrt",
-        "STreeD (PWC)": "streed_pwc",
-        "STreeD (PWL)": "streed_pwl",
+        "SRT-C": "streed_pwc",
+        "SRT-SL": "streed_pwsl",
+        "SRT-L (Elastic Net)": "streed_pwl_elasticnet",
+        "SRT-L (Lasso)": "streed_pwl_lasso",
         "IAI": "iai",
         "IAI-L": "iai_l"
     }
@@ -85,8 +91,10 @@ if OUTPUT_TEX_TABLE:
         if method == "LR":
             print(f"{sep} % {method}")
             continue
-        if method in ["CART", "GUIDE", "IAI", "OSRT", "STreeD (PWC)"]:
+        if method in ["CART", "GUIDE", "IAI", "OSRT", "SRT-C"]:
             df2 = df[(df["method"] != "iai_l") & (df["method"] != "streed_pwl") & (df["method"] != "guide_l") & (df["method"] != "lr")]
+        elif method in ["SRT-SL", "GUIDE-SL"]:
+            df2 = df[(df["method"] != "guide-sl") & (df["method"] != "streed_pwsl") ]
         else:
             df2 = df[(df["method"] != "cart") & (df["method"] != "iai") & (df["method"] != "streed_pwc") & (df["method"] != "guide") & (df["method"] != "lr") & (df["method"] != "osrt")]
 

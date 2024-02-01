@@ -19,6 +19,7 @@ def generate_experiments():
 
     for info in infos:
         if info["filename"] in ["household"]: continue
+        
         if "splits" not in info:
             print(f"Skipping dataset: {info['filename']}. It does not contain splits")
             continue
@@ -99,7 +100,9 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
                 "complexity_penalty": 0,
+                "ridge": 0,
                 "tune": True,
+                "use_d2": 1,
             }
             streed_pwl = {
                 "method": "streed_pwl",
@@ -109,6 +112,7 @@ def generate_experiments():
                 "test_data": split["test"],
                 "complexity_penalty": 0,
                 "lasso": 0,
+                "ridge": 0,
                 "tune": True,
             }
             iai_l = {
@@ -150,21 +154,21 @@ def generate_experiments():
                 "test_data": split["test"],
             }
 
-            #experiments.append(lr)
-            #experiments.append(cart)
-            #experiments.append(guide)
+            experiments.append(lr)
+            experiments.append(cart)
+            experiments.append(guide)
             experiments.append(guide_sl)
-            #experiments.append(guide_l)
-            #experiments.append(streed_pwc)
-            #experiments.append(streed_pwsl)
-            #experiments.append(streed_pwl)
-            #experiments.append(osrt)
-            #experiments.append(iai)
-            #experiments.append(iai_l)
+            experiments.append(guide_l)
+            experiments.append(streed_pwc)
+            experiments.append(streed_pwsl)
+            experiments.append(streed_pwl)
+            experiments.append(osrt)
+            experiments.append(iai)
+            experiments.append(iai_l)
             
-            #experiments.append(ort)
-            #experiments.append(ort_l)
-            #experiments.append(dtip)
+            experiments.append(ort)
+            experiments.append(ort_l)
+            experiments.append(dtip)
 
     # Randomize experiment order so no methods gets an unfair advantage on average
     random.shuffle(experiments)
@@ -177,6 +181,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     experiments = generate_experiments()
+
+    print(f"Generated {len(experiments)} experiments.")
 
     with open(args.file, "w") as experiments_file:
         json.dump(experiments, experiments_file, indent=4)

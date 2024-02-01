@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 from gurobipy import Model, quicksum, GRB, Env
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import r2_score
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.metrics import r2_score, mean_squared_error
 from methods.misc.util import load_data_cont_bincat
 import math
 import time
@@ -29,6 +29,9 @@ def _run_ort(
     _train_X, train_y, train_info = load_data_cont_bincat(train_data)
     _test_X, test_y, test_info = load_data_cont_bincat(test_data)
     
+    y_scaler = StandardScaler()
+    train_y = y_scaler.fit_transform(train_y.values.reshape(-1, 1))[:, 0]
+
     start_time = time.time() # Start timer after reading data
     
     # Normalize X
@@ -45,8 +48,8 @@ def _run_ort(
     # Require at least 10 instances in a leaf node for every independent variable
     min_support = F * 10 
 
-    total_train_var = train_y.std()**2
-    total_test_var = test_y.std()**2
+    total_train_var = N * train_y.std()**2
+    total_test_var = N *test_y.std()**2
 
     params = {
         "LogToConsole": True,
@@ -149,7 +152,7 @@ def _run_ort(
 
         # One leaf node per instance
         model.addConstrs(quicksum([z[i,t] for t in leaf_nodes]) == 1 for i in datapoints)
-
+        
         model.addConstr(C == quicksum(d))
 
         if linear_model:
@@ -190,8 +193,9 @@ def _run_ort(
         n_branching_nodes = sum([d[i].X for i in branching_nodes])
 
         train_r2 = r2_score(train_y, yhat)
+        train_mse = mean_squared_error(train_y, yhat)
         if verbose:
-            print("\nTrain MSE: ", -(train_r2 - 1) * total_train_var)
+            print("\nTrain MSE: ", train_mse)
             print("Train R^2: ", train_r2)
 
         ytest_hat = []
@@ -208,11 +212,13 @@ def _run_ort(
                 ytest_hat.append(b0[t].X + sum([beta[t, p].X * test_X[i, p] for p in features]))
             else:
                 ytest_hat.append(b0[t].X)
+        ytest_hat = y_scaler.inverse_transform(np.array(ytest_hat).reshape(-1, 1))[:, 0]
         ytest_hat = pd.Series(ytest_hat, index=_test_X.index)
 
         test_r2 = r2_score(test_y, ytest_hat)
+        test_mse = mean_squared_error(test_y, ytest_hat)
         if verbose:
-            print("\nTest MSE: ", -(test_r2 - 1) * total_test_var)
+            print("\nTest MSE: ", test_mse)
             print("Test R^2: ", test_r2)
 
             for t in leaf_nodes:

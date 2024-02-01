@@ -9,7 +9,7 @@ import random
 SCRIPT_DIR = Path(__file__).parent.resolve()
 TIMEOUT = 1000
 REPEATS = 5
-DEPTH = 5
+DEPTH = 4
 
 
 def generate_experiments():
@@ -54,8 +54,31 @@ def generate_experiments():
                 "train_data": data,
                 "test_data": data,
                 "complexity_penalty": 0.0001,
+                "lasso": 0,
+                "ridge": 0,
+                "tune": False
+            }
+            streed_pwsl = {
+                "method": "streed_pwsl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": data,
+                "test_data": data,
+                "complexity_penalty": 0.0001,
+                "ridge": 0,
                 "tune": False,
-                "lasso": 0
+                "use_d2": 1
+            }
+            streed_pwsl_without_d2 = {
+                "method": "streed_pwsl",
+                "timeout": TIMEOUT,
+                "depth": DEPTH,
+                "train_data": data,
+                "test_data": data,
+                "complexity_penalty": 0.0001,
+                "ridge": 0,
+                "tune": False,
+                "use_d2": 0
             }
             osrt = {
                 "method": "osrt",
@@ -98,6 +121,8 @@ def generate_experiments():
             experiments.append(streed_pwc)
             experiments.append(streed_pwc_without_d2)
             experiments.append(streed_pwl)
+            experiments.append(streed_pwsl)
+            experiments.append(streed_pwsl_without_d2)
             experiments.append(osrt)
             #experiments.append(ort)
             #experiments.append(ort_l)

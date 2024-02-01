@@ -1,0 +1,2 @@
+method,depth,train_data,complexity_penalty,timeout,test_data,time,train_r2,test_r2,leaves,terminal_calls
+dtip,2,seoul-bike,0.0,1000,seoul-bike,1001,-1,-1,-1,-1

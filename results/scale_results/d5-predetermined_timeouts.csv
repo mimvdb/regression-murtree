@@ -1,0 +1,5 @@
+method,depth,train_data,complexity_penalty,timeout,test_data,time,train_r2,test_r2,leaves,terminal_calls
+streed_pwl,5,seoul-bike,0.0001,1000,seoul-bike,1001,-1,-1,-1,-1
+streed_pwl,5,seoul-bike,0.001,1000,seoul-bike,1001,-1,-1,-1,-1
+streed_pwl,5,seoul-bike,0.01,1000,seoul-bike,1001,-1,-1,-1,-1
+streed_pwl,5,seoul-bike,0.1,1000,seoul-bike,1001,-1,-1,-1,-1

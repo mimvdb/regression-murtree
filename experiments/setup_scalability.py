@@ -10,8 +10,8 @@ import pandas as pd
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 TIMEOUT = 1000
-CPS = [0.1, 0.05, 0.025, 0.01, 0.0075, 0.005, 0.0025, 0.001, 0.0005, 0.0001]
-REPEATS = 5
+CPS = [0.1, 0.01, 0.001, 0.0001]
+REPEATS = 1
 SKIP_DATASETS = ["household"]
 
 
@@ -19,6 +19,8 @@ def get_id(exp):
     method = exp["method"]
     if method == "streed_pwc":
         method += f'_kmeans{exp["use_kmeans"]}_tasklb{exp["use_task_bound"]}_lb{exp["use_lower_bound"]}_terminal{exp["use_d2"]}'
+    if method == "streed_pwsl":
+        method += f'_terminal{exp["use_d2"]}'
     elif method == "ort":
         method += f'_l{exp["linear"]}_metric{exp["metric"]}'
     data = exp["train_data"]
@@ -63,6 +65,28 @@ def generate_experiments(depth, prev_timeouts):
                     "use_lower_bound": 1,
                     "use_d2": 0,
                 }
+                streed_pwsl = {
+                    "method": "streed_pwsl",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "complexity_penalty": cp,
+                    "tune": False,
+                    "use_d2": 1,
+                    "ridge": 0
+                }
+                streed_pwsl_without_d2 = {
+                    "method": "streed_pwsl",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "complexity_penalty": cp,
+                    "tune": False,
+                    "use_d2": 0,
+                    "ridge": 0
+                }
                 streed_pwl = {
                     "method": "streed_pwl",
                     "timeout": TIMEOUT,
@@ -72,7 +96,7 @@ def generate_experiments(depth, prev_timeouts):
                     "complexity_penalty": cp,
                     "tune": False,
                     "lasso": 0,
-                    "use_d2": 1,
+                    "ridge": 0
                 }
                 osrt = {
                     "method": "osrt",
@@ -105,8 +129,26 @@ def generate_experiments(depth, prev_timeouts):
                     "lasso_penalty": 0,
                     "metric": "MAE"
                 }
+                iai = {
+                    "method": "iai",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "tune": False,
+                    "complexity_penalty": cp
+                }
+                iai_l = {
+                    "method": "iai_l",
+                    "timeout": TIMEOUT,
+                    "depth": depth,
+                    "train_data": data,
+                    "test_data": data,
+                    "tune": False,
+                    "complexity_penalty": cp
+                }
 
-                for exp in [streed_pwc, streed_pwc_without_d2, streed_pwl, osrt, ort, ort_l]:
+                for exp in [streed_pwc, streed_pwc_without_d2, streed_pwsl, streed_pwsl_without_d2, streed_pwl, osrt, ort, ort_l]:
                     if get_id(exp) not in prev_timeouts: experiments.append(exp)
 
             dtip = {

@@ -12,12 +12,14 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 def generate_experiments():
     with open(SCRIPT_DIR / "experiments.json") as experiments_json:
         experiments = json.load(experiments_json)
-    results = pd.read_csv("results.csv").to_records()
+    results = pd.read_csv(SCRIPT_DIR / "results.csv").to_records()
 
     def get_key_exp(v):
         method = v["method"]
         if method == "streed_pwc":
             method += f'_kmeans{v["use_kmeans"]}_tasklb{v["use_task_bound"]}_lb{v["use_lower_bound"]}_terminal{v["use_d2"]}'
+        elif method == "streed_pwsl":
+            method += f'_terminal{v["use_d2"]}'
         elif method == "ort":
             method += f'_l{v["linear"]}_metric{v["metric"]}'
         return (method, v["train_data"], v["test_data"], v["depth"], v.get("complexity_penalty", 0.0))

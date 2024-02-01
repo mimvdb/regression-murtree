@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from matplotlib.ticker import PercentFormatter
 import numpy as np
+from scipy.stats import gmean
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
@@ -18,35 +19,46 @@ plt.rc('axes', labelsize='small', grid=True)
 plt.rc('legend', fontsize='x-small')
 plt.rc('pdf',fonttype = 42)
 plt.rc('ps',fonttype = 42)
-plt.rc('text', usetex = True)
+plt.rc('text', usetex = True) 
 sns.set_palette("colorblind")
 
-# files = ["results-after-fix-streed-d1-5.csv",
-#          "results-d1-p1.csv",
-#          "results-d1-p2.csv",
-#          "results-d1-p3.csv",
-#          "results-d2-p1.csv",
-#          "results-d2-p2.csv",
-#          "results-d2-p3.csv",
-#          "results-d3-p1.csv",
-#          "results-d3-p2.csv",
-#          "results-d4.csv",
-#          "results-d5.csv",
-#          "results-d6.csv",
-#          "timeouts-d2.csv",
-#          "timeouts-d3.csv",
-#          "timeouts-d4.csv",
-#          "timeouts-d5.csv",
-#          "timeouts-d6.csv"]
 
-# dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scalability/{file}") for file in files]
-# scl_df = pd.concat(dfs)
-scl_df = pd.read_csv(SCRIPT_DIR / "../results/results-scale.csv")
+files = [
+    "d1-results.csv",
+    #"d2-predetermined_timeouts.csv"
+    "d2-mip-results.csv",
+    "d2-results.csv",
+    "d3-mip-results.csv",
+    "d3-results.csv",
+    "d4-mip-results.csv",
+    #"d4-predetermined_timeouts.csv",
+    "d4-results.csv",
+    "d5-mip-results.csv",
+    "d5-predetermined_timeouts.csv",
+    "d5-results.csv",
+    "d6-mip-results.csv",
+    "d6-predetermined_timeouts.csv",
+    "d6-results.csv",
+    "d7-mip-results.csv",
+    "d7-predetermined_timeouts.csv",
+    "d7-results.csv",
+    "d8-mip-results.csv",
+    "d8-predetermined_timeouts.csv",
+    "d8-results.csv",
+    "d9-mip-results.csv",
+    "d9-predetermined_timeouts.csv",
+    "d9-results.csv",
+]
+
+dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scale_results/{file}") for file in files]
+scl_df = pd.concat(dfs)
 
 scl_df["method"].replace({
-        "streed_pwc_kmeans1_tasklb1_lb1_terminal0": "STreeD-CR (no d2)",
-        "streed_pwc_kmeans1_tasklb1_lb1_terminal1": "STreeD-CR",
-        "streed_pwl": "STreeD-LR",
+        "streed_pwc_kmeans1_tasklb1_lb1_terminal0": "SRT-C (no d2)",
+        "streed_pwc_kmeans1_tasklb1_lb1_terminal1": "SRT-C",
+        "streed_pwsl_terminal0": "SRT-SL (no d2)",
+        "streed_pwsl_terminal1": "SRT-SL",
+        "streed_pwl": "SRT-L",
         "osrt": "OSRT",
         "ort_lFalse_metricMAE": "ORT",
         "ort_lTrue_metricMAE": "ORT-L", 
@@ -56,32 +68,49 @@ scl_df["method"].replace({
 scl_df.loc[scl_df["time"] == -1, "time"] = scl_df.loc[scl_df["time"] == -1, "timeout"] * 2
 scl_df.loc[scl_df["time"] == scl_df["timeout"] + 1, "time"] = scl_df.loc[scl_df["time"] == scl_df["timeout"] + 1, "timeout"] * 2
 
-print(scl_df.head(5))
-
-
 rts = scl_df.groupby(["train_data", "method", "depth"])["time"].mean().unstack("method")
 methods = scl_df["method"].unique() 
 instances_above_1s_ix = np.column_stack([rts[m] >= 1 for m in methods]).any(axis=1)
 instances_above_1s = pd.Series(instances_above_1s_ix, index=rts.index)
 _scl_df = scl_df[scl_df.apply(lambda x: instances_above_1s.loc[x["train_data"], x["depth"]], axis=1)]
 
-
 if SPLIT_PER_CATEGORY:
     
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(8.1, 1.3), sharey=True)
-
-    method_order = ["STreeD-CR", "OSRT", "ORT", "DTIP"]
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(7.9, 1.3), sharey=True)
+    
+    colors = sns.color_palette("colorblind", 7)
+    
+    method_order = ["SRT-C", "OSRT", "ORT", "DTIP"]
     g1 = sns.ecdfplot(data=_scl_df, x="time", ax=ax1,
                 stat="proportion", hue='method', hue_order=method_order
         )
-    method_order = ["STreeD-LR", "ORT-L"]
+    g1_style = [
+        (colors[0], "-", "s", 3),
+        (colors[3], "-", "o", 3),
+        (colors[5], "-", "v", 3),
+        (colors[4], "-", "D", 3),
+    ]
+
+    method_order = ["SRT-SL", "SRT-L", "ORT-L"]
     g2 = sns.ecdfplot(data=_scl_df, x="time", ax=ax2,
                 stat="proportion", hue='method', hue_order=method_order
         )
-    method_order = [ "STreeD-CR", "STreeD-CR (no d2)"]
+    g2_style = [
+        (colors[1], "-", "X", 4),
+        (colors[2], "-", "^", 3),
+        (colors[6], "-", "<", 3),
+    ]
+
+    method_order = [ "SRT-C", "SRT-C (no d2)", "SRT-SL", "SRT-SL (no d2)"]
     g3 = sns.ecdfplot(data=_scl_df, x="time", ax=ax3,
                 stat="proportion", hue='method', hue_order=method_order
         )
+    g3_style = [
+        (colors[0], "-", "s", 3),
+        (colors[0], "--", "s", 3),
+        (colors[1], "-", "X", 4),
+        (colors[1], "--", "X", 4),
+    ]
     
     g1.set_ylabel("Trees computed")    
     g1.yaxis.set_major_formatter(PercentFormatter(1))
@@ -89,14 +118,27 @@ if SPLIT_PER_CATEGORY:
     g2.set_title("Piecewise linear methods")
     g3.set_title("Effect of depth-two solver")
 
-    for g in [g1, g2, g3]:
+    for g, g_styles, legend_position, legend_anchor, in [(g1, g1_style, "lower left", (0,0)), (g2, g2_style, "lower left", (0,0)), (g3, g3_style, "lower right", (1,0))]:
         g.set(xscale="log", xlim=[1, 1000])
+        
         g.set_xlabel("Run time (s)")
-        sns.move_legend(g, "lower left", bbox_to_anchor=(0, 0), ncol=1, title="", frameon=True)
-        line_styles = ['-', '--', ':', '-.']
-        for lines, linestyle, legend_handle in zip(g.lines[::-1], line_styles, g.legend_.legend_handles):
-            lines.set_linestyle(linestyle)
-            legend_handle.set_linestyle(linestyle)
+        
+        sns.move_legend(g, legend_position, bbox_to_anchor=legend_anchor, ncol=1, title="", frameon=True)
+        _handles = g.legend_.legendHandles 
+        print(g.lines, g_styles, _handles)
+
+        for lines, linestyle, legend_handle in zip(g.lines[::-1], g_styles, _handles):
+            print(linestyle)
+            lines.set_color(linestyle[0])
+            lines.set_linestyle(linestyle[1])
+            lines.set_marker(linestyle[2])
+            lines.set_markevery(0.2)
+            lines.set_markersize(linestyle[3])
+            legend_handle.set_color(linestyle[0])
+            legend_handle.set_linestyle(linestyle[1])
+            legend_handle.set_marker(linestyle[2])
+            legend_handle.set_markersize(linestyle[3])
+            
 
     plt.subplots_adjust(wspace=0.1)
 
@@ -104,7 +146,7 @@ else:
 
     plt.figure(figsize=(3.25, 1.85))
 
-    method_order = ["DTIP", "ORT", "ORT-L", "OSRT", "STreeD-CR", "STreeD-CR (no d2)", "STreeD-LR"]
+    method_order = ["DTIP", "ORT", "ORT-L", "OSRT", "SRT-C", "SRT-C (no d2)", "STreeD-LR"]
     g = sns.ecdfplot(data=_scl_df, x="time",
                 stat="proportion", hue='method', hue_order=method_order)
 
@@ -118,7 +160,6 @@ else:
     g.set_ylabel("Trees computed")    
     g.yaxis.set_major_formatter(PercentFormatter(1))
 
-    #g.set(xscale="log", xlim=[1e-3, 600])
     g.set(xscale="log", xlim=[.1, 600])
     g.set_xlabel("Run time (s)")
 
@@ -129,19 +170,24 @@ else:
 #plt.show()
 plt.savefig(SCRIPT_DIR / "plot" / "fig-scalability.pdf", bbox_inches="tight", pad_inches = 0)
 
-
 rts = _scl_df.groupby(["train_data", "method", "depth"])["time"].mean().unstack("method")
-instances_within_time_out_ix = np.column_stack([rts[m] < 1000 for m in ["OSRT", "STreeD-CR"]]).all(axis=1)
+instances_within_time_out_ix = np.column_stack([rts[m] < 1000 for m in ["OSRT", "SRT-C"]]).all(axis=1)
 instances_within_time_out = pd.Series(instances_within_time_out_ix, index=rts.index)
 _scl_df = _scl_df[_scl_df.apply(lambda x: instances_within_time_out.loc[x["train_data"], x["depth"]], axis=1)]
 
 r = _scl_df.groupby(["train_data", "depth", "method"])["time"].mean().unstack("method")
-rel_perf = (r["OSRT"] / r["STreeD-CR"]).unstack("depth").mean()
-print("OSRT vs STreeD-CR", rel_perf)
-rel_perf = (r["OSRT"] / r["STreeD-CR"]).mean()
-print("OSRT vs STreeD-CR", rel_perf)
+print((r["OSRT"] / r["SRT-C"]).unstack("depth"))
+rel_perf = gmean((r["OSRT"] / r["SRT-C"]).unstack("depth"), axis=0, nan_policy="omit")
+print("OSRT vs SRT-C", rel_perf)
+rel_perf = gmean(r["OSRT"] / r["SRT-C"])
+print("OSRT vs SRT-C", rel_perf)
 
-rel_perf = (r["STreeD-CR (no d2)"] / r["STreeD-CR"]).unstack("depth").mean()
-print("No d2 vs with d2", rel_perf)
-rel_perf = (r["STreeD-CR (no d2)"] / r["STreeD-CR"]).mean()
-print("No d2 vs with d2", rel_perf)
+rel_perf = gmean((r["SRT-C (no d2)"] / r["SRT-C"]).unstack("depth"), axis=0, nan_policy="omit")
+print("C | No d2 vs with d2", rel_perf)
+rel_perf = gmean(r["SRT-C (no d2)"] / r["SRT-C"])
+print("C | No d2 vs with d2", rel_perf)
+
+rel_perf = gmean((r["SRT-SL (no d2)"] / r["SRT-SL"]).unstack("depth"), axis=0, nan_policy="omit")
+print("SL | No d2 vs with d2", rel_perf)
+rel_perf = gmean(r["SRT-SL (no d2)"] / r["SRT-SL"])
+print("SL | No d2 vs with d2", rel_perf)

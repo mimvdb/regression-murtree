@@ -1,0 +1,15 @@
+method,timeout,depth,train_data,test_data,complexity_penalty,time,train_r2,test_r2,leaves,terminal_calls
+streed_pwc_kmeans1_tasklb1_lb1_terminal0,1000,6,seoul-bike,seoul-bike,0.0001,1001,-1,-1,-1,-1
+streed_pwc_kmeans1_tasklb1_lb1_terminal0,1000,6,seoul-bike,seoul-bike,0.001,1001,-1,-1,-1,-1
+streed_pwc_kmeans1_tasklb1_lb1_terminal0,1000,6,seoul-bike,seoul-bike,0.01,1001,-1,-1,-1,-1
+streed_pwc_kmeans1_tasklb1_lb1_terminal0,1000,6,seoul-bike,seoul-bike,0.1,1001,-1,-1,-1,-1
+streed_pwl,1000,6,enb-cool,enb-cool,0.01,1001,-1,-1,-1,-1
+streed_pwl,1000,6,enb-heat,enb-heat,0.0001,1001,-1,-1,-1,-1
+streed_pwl,1000,6,seoul-bike,seoul-bike,0.0001,1001,-1,-1,-1,-1
+streed_pwl,1000,6,seoul-bike,seoul-bike,0.001,1001,-1,-1,-1,-1
+streed_pwl,1000,6,seoul-bike,seoul-bike,0.01,1001,-1,-1,-1,-1
+streed_pwl,1000,6,seoul-bike,seoul-bike,0.1,1001,-1,-1,-1,-1
+streed_pwsl_terminal0,1000,6,seoul-bike,seoul-bike,0.0001,1001,-1,-1,-1,-1
+streed_pwsl_terminal0,1000,6,seoul-bike,seoul-bike,0.001,1001,-1,-1,-1,-1
+streed_pwsl_terminal0,1000,6,seoul-bike,seoul-bike,0.01,1001,-1,-1,-1,-1
+streed_pwsl_terminal0,1000,6,seoul-bike,seoul-bike,0.1,1001,-1,-1,-1,-1

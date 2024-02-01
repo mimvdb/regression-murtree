@@ -11,6 +11,8 @@ experiments/experiments.json
 experiments/results.csv
 experiments/experiment
 experiments/tmp
+experiments/log.err
+results/old
 __pycache__
 build/**
 !.gitkeep

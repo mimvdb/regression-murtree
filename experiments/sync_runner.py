@@ -50,9 +50,15 @@ def run_experiments(experiments: List):
                 e["train_data"],
                 e["test_data"],
                 e["complexity_penalty"],
+                e["ridge"],
                 e["tune"],
+                e["use_d2"],
             )
-            result["method"] = f"streed_pswl"
+            result["method"] = f"streed_pwsl"
+            if not e["tune"]:
+                result[
+                    "method"
+                ] += f'_terminal{e["use_d2"]}'
         elif e["method"] == "streed_pwl":
             result = run_streed_pwl(
                 str(STREED_PATH),
@@ -62,6 +68,7 @@ def run_experiments(experiments: List):
                 e["test_data"],
                 e["complexity_penalty"],
                 e["lasso"],
+                e["ridge"],
                 e["tune"],
             )
             result["method"] = f"streed_pwl"
