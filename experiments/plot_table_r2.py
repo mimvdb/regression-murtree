@@ -55,6 +55,7 @@ if __name__ == "__main__":
         "Auto MPG": "Auto MPG",
         "Energy Efficiency (cooling load)": "Energy (C)",
         "Energy Efficiency (heating load)": "Energy (H)",
+        "Household Power Consumption": "Household",
         "Optical Interconnection Network": "Optical Net.",
         "Real Estate Valuation": "Real Estate",
         "Seoul Bike Sharing Demand": "Seoul Bike",
@@ -63,9 +64,9 @@ if __name__ == "__main__":
         "Yacht Hydrodynamics": "Yacht"
     }
 
-    for (methods, best_scores, print_info) in [(constant_methods, best_constant_scores, False), (linear_methods, best_linear_scores, False)]:
+    for (methods, best_scores, print_info) in [(constant_methods, best_constant_scores, True), (linear_methods, best_linear_scores, False)]:
         for info in sorted(infos, key=lambda x: x["name"]):
-            if info['name'] == 'Household Power Consumption': continue
+            #if info['name'] == 'Household Power Consumption': continue
             print(f"{data_set_map[info['name']]} &")
             if print_info:
                 with open(SCRIPT_DIR / ".." / "data" / "prepared" / f"{info['filename']}.json", "r") as more_info_json:

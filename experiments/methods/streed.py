@@ -106,10 +106,10 @@ def run_streed_pwc(
         # Add timeout, if not running on windows
         # (Windows timeout command is different)
         if os.name != "nt":
-            command = ["timeout", str(timeout)] + command
+            command = ["timeout", str(timeout + 20)] + command
 
         # print(" ".join(command))
-        result = subprocess.check_output(command, timeout=timeout)
+        result = subprocess.check_output(command, timeout=timeout+20)
         output = result.decode()
         # print(output)
         parsed = parse_output(output, timeout, train_data, test_data)
@@ -165,10 +165,10 @@ def run_streed_pwsl(exe, timeout, depth, train_data, test_data, cp, ridge, tune,
         # Add timeout, if not running on windows
         # (Windows timeout command is different)
         if os.name != "nt":
-            command = ["timeout", str(timeout)] + command
+            command = ["timeout", str(timeout + 20)] + command
 
         print(" ".join(command))
-        result = subprocess.check_output(command, timeout=timeout)
+        result = subprocess.check_output(command, timeout=timeout+20)
         output = result.decode()
         # print(output)
         parsed = parse_output(output, timeout, train_data, test_data)
@@ -226,19 +226,22 @@ def run_streed_pwl(exe, timeout, depth, train_data, test_data, cp, lasso, ridge,
         # Add timeout, if not running on windows
         # (Windows timeout command is different)
         if os.name != "nt":
-            command = ["timeout", str(timeout)] + command
+            command = ["timeout", str(timeout + 120)] + command
 
         print(" ".join(command))
-        result = subprocess.check_output(command, timeout=timeout)
+        result = subprocess.check_output(command, timeout=timeout+120)
         output = result.decode()
-        # print(output)
+        print("Output: \n", output)
         parsed = parse_output(output, timeout, train_data, test_data)
         return parsed
     except subprocess.TimeoutExpired as e:
-        # print(e.stdout.decode())
+        print("Time-out: \n")
+        try:
+            print(e.stdout.decode())
+        except: pass
         return parse_output("", timeout, train_data, test_data)
     except subprocess.CalledProcessError as e:
-        print(e.stdout.decode(), file=sys.stderr, flush=True)
+        print("Error: \n", e.stdout.decode(), file=sys.stderr, flush=True)
         return {
             "time": -1,
             "train_r2": -1,

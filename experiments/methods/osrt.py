@@ -26,17 +26,28 @@ def compute_r2(model, X, y, loss_normalizer):
 
 def parse_output(content, timeout: int, model_output_path, train_data, test_data):
     props = {}
+
+    loss_normalizer_pattern = r"loss_normalizer: (" + float_pattern + ")"
+
     if "Training Duration: " not in content:
         # Timeout
+        train_r2 = -1
+        if ("loss_normalizer:" in content) and ("Objective: [" in content):
+            training_score_patern = r"Objective: \["+ float_pattern+", "+ float_pattern+"\]"
+            all_matches = re.finditer(training_score_patern, content)
+            for match in all_matches:
+                value = float(match.group(4))
+                if 1 - value > train_r2:
+                    train_r2 = 1 - value # note that this value includes the CP costs
+        
         props["time"] = timeout + 1
-        props["train_r2"] = -1
+        props["train_r2"] = train_r2
         props["test_r2"] = -1
         props["leaves"] = -1
         props["terminal_calls"] = -1
         return props
 
     time_pattern = r"Training Duration: (" + float_pattern + ") seconds"
-    loss_normalizer_pattern = r"loss_normalizer: (" + float_pattern + ")"
     props["time"] = float(re.search(time_pattern, content, re.M).group(1))
     props["terminal_calls"] = -1
 
@@ -86,6 +97,7 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
             )  # OSRT considers root with 2 leaves as depth 2, while STreeD considers it depth 1
             config_base["regularization"] = cp
             config_base["model"] = str(model_output_path)
+            config_base["time_limit"] == str(timeout)
             with open(config_path, "w") as tmp_config_file:
                 json.dump(config_base, tmp_config_file)
 
@@ -98,18 +110,18 @@ def run_osrt(exe, timeout, depth, train_data, test_data, cp, tune):
                 ]
             
             if os.name != "nt": 
-                command = ["timeout", str(timeout)] + command
+                command = ["timeout", str(timeout + 20)] + command
 
             result = subprocess.check_output(command,timeout=timeout)
             output = result.decode()
-            # print(output)
+            #print(output)
             parsed = parse_output(
                 output, timeout, model_output_path, train_data, test_data
             )
             return parsed
         except subprocess.TimeoutExpired as e:
-            # print(e.stdout.decode())
-            return parse_output("", timeout, "", "", "")
+            #print(e.stdout.decode())
+            return parse_output(e.stdout.decode(), timeout, "", "", "")
         except subprocess.CalledProcessError as e:
             print(e.stdout.decode(), file=sys.stderr, flush=True)
             return {

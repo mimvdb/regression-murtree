@@ -9,6 +9,7 @@ from scipy.stats import gmean
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
 SPLIT_PER_CATEGORY = True
+SPLIT_PER_DEPTH    = True
 
 sns.set_context('paper')
 plt.rc('font', size=10, family='serif')
@@ -53,7 +54,7 @@ files = [
 dfs = [pd.read_csv(SCRIPT_DIR / f"../results/scale_results/{file}") for file in files]
 scl_df = pd.concat(dfs)
 
-scl_df["method"].replace({
+scl_df["method"] = scl_df["method"].replace({
         "streed_pwc_kmeans1_tasklb1_lb1_terminal0": "SRT-C (no d2)",
         "streed_pwc_kmeans1_tasklb1_lb1_terminal1": "SRT-C",
         "streed_pwsl_terminal0": "SRT-SL (no d2)",
@@ -63,84 +64,125 @@ scl_df["method"].replace({
         "ort_lFalse_metricMAE": "ORT",
         "ort_lTrue_metricMAE": "ORT-L", 
         "dtip": "DTIP"
-    }, inplace=True)
+    })
 
 scl_df.loc[scl_df["time"] == -1, "time"] = scl_df.loc[scl_df["time"] == -1, "timeout"] * 2
 scl_df.loc[scl_df["time"] == scl_df["timeout"] + 1, "time"] = scl_df.loc[scl_df["time"] == scl_df["timeout"] + 1, "timeout"] * 2
 
 rts = scl_df.groupby(["train_data", "method", "depth"])["time"].mean().unstack("method")
+
+
+#scl_df.groupby(["train_data", "method", "depth"])["time"].mean().to_csv("out.csv")
+
 methods = scl_df["method"].unique() 
 instances_above_1s_ix = np.column_stack([rts[m] >= 1 for m in methods]).any(axis=1)
 instances_above_1s = pd.Series(instances_above_1s_ix, index=rts.index)
-_scl_df = scl_df[scl_df.apply(lambda x: instances_above_1s.loc[x["train_data"], x["depth"]], axis=1)]
+_scl_df = scl_df#[scl_df.apply(lambda x: instances_above_1s.loc[x["train_data"], x["depth"]], axis=1)]
 
 if SPLIT_PER_CATEGORY:
-    
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(7.9, 1.3), sharey=True)
+
+    if SPLIT_PER_DEPTH:
+        fig, (axs1, axs2, axs3, axs4) = plt.subplots(4, 3, figsize=(7.9, 5.0), sharey=True, sharex=True)
+        row1 = (axs1, [1,2])
+        row2 = (axs2, [3,4])
+        row3 = (axs3, [5,6])
+        row4 = (axs4, [7,8,9])
+        rows = [row1, row2, row3, row4]
+    else:
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(7.9, 1.3), sharey=True)
+        row1 = ((ax1, ax2, ax3), list(range(1,10)))
+        rows = [row1]
     
     colors = sns.color_palette("colorblind", 7)
     
-    method_order = ["SRT-C", "OSRT", "ORT", "DTIP"]
-    g1 = sns.ecdfplot(data=_scl_df, x="time", ax=ax1,
-                stat="proportion", hue='method', hue_order=method_order
-        )
-    g1_style = [
-        (colors[0], "-", "s", 3),
-        (colors[3], "-", "o", 3),
-        (colors[5], "-", "v", 3),
-        (colors[4], "-", "D", 3),
-    ]
+    first_row = True
+    for axs, depths in rows:
+        ax1, ax2, ax3 = axs
+        _scl_df_ = _scl_df[_scl_df["depth"].isin(depths)]
 
-    method_order = ["SRT-SL", "SRT-L", "ORT-L"]
-    g2 = sns.ecdfplot(data=_scl_df, x="time", ax=ax2,
-                stat="proportion", hue='method', hue_order=method_order
-        )
-    g2_style = [
-        (colors[1], "-", "X", 4),
-        (colors[2], "-", "^", 3),
-        (colors[6], "-", "<", 3),
-    ]
+        method_order = ["SRT-C", "OSRT", "ORT", "DTIP"]
+        g1 = sns.ecdfplot(data=_scl_df_, x="time", ax=ax1,
+                    stat="proportion", hue='method', hue_order=method_order
+            )
+        g1_style = [
+            (colors[0], "-", "s", 3),
+            (colors[3], "-", "o", 3),
+            (colors[5], "-", "v", 3),
+            (colors[4], "-", "D", 3),
+        ]
 
-    method_order = [ "SRT-C", "SRT-C (no d2)", "SRT-SL", "SRT-SL (no d2)"]
-    g3 = sns.ecdfplot(data=_scl_df, x="time", ax=ax3,
-                stat="proportion", hue='method', hue_order=method_order
-        )
-    g3_style = [
-        (colors[0], "-", "s", 3),
-        (colors[0], "--", "s", 3),
-        (colors[1], "-", "X", 4),
-        (colors[1], "--", "X", 4),
-    ]
-    
-    g1.set_ylabel("Trees computed")    
-    g1.yaxis.set_major_formatter(PercentFormatter(1))
-    g1.set_title("Piecewise constant methods")
-    g2.set_title("Piecewise linear methods")
-    g3.set_title("Effect of depth-two solver")
+        method_order = ["SRT-SL", "SRT-L", "ORT-L"]
+        g2 = sns.ecdfplot(data=_scl_df_, x="time", ax=ax2,
+                    stat="proportion", hue='method', hue_order=method_order
+            )
+        g2_style = [
+            (colors[1], "-", "X", 4),
+            (colors[2], "-", "^", 3),
+            (colors[6], "-", "<", 3),
+        ]
 
-    for g, g_styles, legend_position, legend_anchor, in [(g1, g1_style, "lower left", (0,0)), (g2, g2_style, "lower left", (0,0)), (g3, g3_style, "lower right", (1,0))]:
-        g.set(xscale="log", xlim=[1, 1000])
+        method_order = [ "SRT-C", "SRT-C (no d2)", "SRT-SL", "SRT-SL (no d2)"]
+        g3 = sns.ecdfplot(data=_scl_df_, x="time", ax=ax3,
+                    stat="proportion", hue='method', hue_order=method_order
+            )
+        g3_style = [
+            (colors[0], "-", "s", 3),
+            (colors[0], "--", "s", 3),
+            (colors[1], "-", "X", 4),
+            (colors[1], "--", "X", 4),
+        ]
         
-        g.set_xlabel("Run time (s)")
-        
-        sns.move_legend(g, legend_position, bbox_to_anchor=legend_anchor, ncol=1, title="", frameon=True)
-        _handles = g.legend_.legendHandles 
-        print(g.lines, g_styles, _handles)
+        if SPLIT_PER_DEPTH:
+            low = min(depths)
+            high = max(depths)
+            g1.set_ylabel(f"Depth = {low}-{high}\nTrees computed")    
+        else:
+            g1.set_ylabel("Trees computed")    
+        g1.yaxis.set_major_formatter(PercentFormatter(1))
+        if first_row:
+            g1.set_title("Piecewise constant methods")
+            g2.set_title("Piecewise linear methods")
+            g3.set_title("Effect of depth-two solver")
 
-        for lines, linestyle, legend_handle in zip(g.lines[::-1], g_styles, _handles):
-            print(linestyle)
-            lines.set_color(linestyle[0])
-            lines.set_linestyle(linestyle[1])
-            lines.set_marker(linestyle[2])
-            lines.set_markevery(0.2)
-            lines.set_markersize(linestyle[3])
-            legend_handle.set_color(linestyle[0])
-            legend_handle.set_linestyle(linestyle[1])
-            legend_handle.set_marker(linestyle[2])
-            legend_handle.set_markersize(linestyle[3])
+        for g, g_styles, legend_position, legend_anchor, in [(g1, g1_style, "lower left", (0,0)), (g2, g2_style, "lower left", (0,0)), (g3, g3_style, "lower right", (1,0))]:
+            if SPLIT_PER_DEPTH:
+                g.set(xscale="log", xlim=[.01, 1000])
+            else:
+                g.set(xscale="log", xlim=[1, 1000])
             
+            g.set_xlabel("Run time (s)")
+            
+            if first_row:
+                sns.move_legend(g, legend_position, bbox_to_anchor=legend_anchor, ncol=1, title="", frameon=True)
+                _handles = g.legend_.legendHandles
+                #print(g.lines, g_styles, _handles)
 
-    plt.subplots_adjust(wspace=0.1)
+                for lines, linestyle, legend_handle in zip(g.lines[::-1], g_styles, _handles):
+                    #print(linestyle)
+                    lines.set_color(linestyle[0])
+                    lines.set_linestyle(linestyle[1])
+                    lines.set_marker(linestyle[2])
+                    lines.set_markevery(0.2)
+                    lines.set_markersize(linestyle[3])
+                    legend_handle.set_color(linestyle[0])
+                    legend_handle.set_linestyle(linestyle[1])
+                    legend_handle.set_marker(linestyle[2])
+                    legend_handle.set_markersize(linestyle[3])
+
+            else:
+                g.get_legend().remove()
+
+                for lines, linestyle in zip(g.lines[::-1], g_styles):
+                    #print(linestyle)
+                    lines.set_color(linestyle[0])
+                    lines.set_linestyle(linestyle[1])
+                    lines.set_marker(linestyle[2])
+                    lines.set_markevery(0.2)
+                    lines.set_markersize(linestyle[3])
+        
+        first_row = False
+
+    plt.subplots_adjust(wspace=0.12)
 
 else:
 
@@ -168,7 +210,9 @@ else:
 
 #plt.tight_layout()
 #plt.show()
-plt.savefig(SCRIPT_DIR / "plot" / "fig-scalability.pdf", bbox_inches="tight", pad_inches = 0)
+filename = "fig-scalability.pdf"
+if SPLIT_PER_DEPTH: filename = "fig-depth-split-scalability.pdf"
+plt.savefig(SCRIPT_DIR / "plot" / filename, bbox_inches="tight", pad_inches = 0)
 
 rts = _scl_df.groupby(["train_data", "method", "depth"])["time"].mean().unstack("method")
 instances_within_time_out_ix = np.column_stack([rts[m] < 1000 for m in ["OSRT", "SRT-C"]]).all(axis=1)

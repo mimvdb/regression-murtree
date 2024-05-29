@@ -10,6 +10,7 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 DEPTH = 5
 DEPTH_L = DEPTH - 1
 TIMEOUT = 60 * 15
+TUNE = True
 
 def generate_experiments():
     with open(SCRIPT_DIR / ".." / "data" / "prepared" / "info.json", "r") as info_json:
@@ -38,7 +39,7 @@ def generate_experiments():
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
-                "tune": True
+                "tune": TUNE
             }
             guide = {
                 "method": "guide",
@@ -54,7 +55,7 @@ def generate_experiments():
                 "train_data": split["train"],
                 "test_data": split["test"],
                 "complexity_penalty": 0,
-                "tune": True,
+                "tune": TUNE,
                 "use_kmeans": 1,
                 "use_task_bound": 1,
                 "use_lower_bound": 1,
@@ -66,8 +67,8 @@ def generate_experiments():
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
-                "complexity_penalty": 0.0001,
-                "tune": True,
+                "complexity_penalty": 0.00001,
+                "tune": TUNE,
             }
             iai = {
                 "method": "iai",
@@ -75,7 +76,7 @@ def generate_experiments():
                 "depth": DEPTH,
                 "train_data": split["train"],
                 "test_data": split["test"],
-                "tune": True,
+                "tune": TUNE,
                 "complexity_penalty": 0.0
             }
 
@@ -101,7 +102,7 @@ def generate_experiments():
                 "test_data": split["test"],
                 "complexity_penalty": 0,
                 "ridge": 0,
-                "tune": True,
+                "tune": TUNE,
                 "use_d2": 1,
             }
             streed_pwl = {
@@ -113,7 +114,7 @@ def generate_experiments():
                 "complexity_penalty": 0,
                 "lasso": 0,
                 "ridge": 0,
-                "tune": True,
+                "tune": TUNE,
             }
             iai_l = {
                 "method": "iai_l",
@@ -121,7 +122,7 @@ def generate_experiments():
                 "depth": DEPTH_L,
                 "train_data": split["train"],
                 "test_data": split["test"],
-                "tune": True,
+                "tune": TUNE,
                 "complexity_penalty": 0.0
             }
             ort = {
