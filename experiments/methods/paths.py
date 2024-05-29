@@ -10,6 +10,6 @@ OSRT_PATH = (
     / "osrt"
 )  # SCRIPT_DIR / "osrt"
 STREED_PATH = (
-    SCRIPT_DIR / ".." / ".." / "streed2" / "build" / "STREED"
+    SCRIPT_DIR / ".." / ".." / "streed" / "build" / "STREED"
 )  # SCRIPT_DIR / "STREED"
 GUIDE_PATH = SCRIPT_DIR / "methods" / "misc" / "guide"

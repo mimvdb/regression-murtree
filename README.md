@@ -1,7 +1,22 @@
 # Regression MurTree
-This repository contains the experiments performed for the bachelor thesis "Optimal Regression Trees via Dynamic Programming: Optimization techniques for learning Regression Trees" (http://resolver.tudelft.nl/uuid:377edc0f-00b9-4481-840f-0fde43c494b9), as part of the Research Project 2023/Q4 (https://cse3000-research-project.github.io/2023/Q4) at the TU Delft.
+This repository contains the experiments performed for the paper "Piecewise Constant and Linear Regression Trees: An Optimal Dynamic Programming Approach."
 
+This work is the result of a bachelor thesis project at the TU Delft [Optimal Regression Trees via Dynamic Programming: Optimization techniques for learning Regression Trees](http://resolver.tudelft.nl/uuid:377edc0f-00b9-4481-840f-0fde43c494b9).
 For the state of the repository as it was at the end of the research project, see the tag `research-project`.
+
+If you use our work, please cite our paper:
+* Van den Bos, Mim, Jacobus G. M. van der Linden, and Emir Demirović. "Piecewise Constant and Linear Regression Trees: An Optimal Dynamic Programming Approach." In _Proceedings of ICML-24_, 2024.
+
+For questions: contact us by [e-mail](mailto:J.G.M.vanderLinden@tudelft.nl).
+
+# SRT
+Our method SRT is implemented in [STreeD](https://github.com/AlgTUDelft/pystreed). STreeD can be installed from [pypi](https://pypi.org/project/pystreed/):
+
+```sh
+pip install pystreed
+```
+
+(For the experiments in this benchmark, we directly use the compiled STreeD, instead of the python wrapper. See below for build instructions.)
 
 # Linux
 ## Prerequisites
@@ -21,8 +36,8 @@ cd data
 
 ## Running experiments
 Expects the following repositories to be checked out in the parent directory:
-- `../optimal-sparse-regression-tree-public` (https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
-- `../streed2` (not published at this time)
+- `../optimal-sparse-regression-tree-public` [[repo]](https://github.com/ruizhang1996/optimal-sparse-regression-tree-public)
+- `../streed` [[repo]](https://github.com/AlgTUDelft/pystreed)
 
 1. Build OSRT after installing dependencies `sudo apt-get install libgmp-dev libtbb-dev` with
 ```sh
@@ -31,7 +46,7 @@ cd build
 cmake ..
 cmake --build .
 ```
-2. Build streed2 by following the linux instructions in the README
+2. Build streed by following the linux instructions in the README
 3. Prepare datasets (See above)
 4. Run `python setup_scalability.py` to intialize the experiment
 5. Run `python lab_runner.py` to run the experiments with multiple processes or on DelftBlue, or run `python sync_runner.py` to run single-threaded.
@@ -41,6 +56,7 @@ cmake --build .
 After preparing the data/running the experiments, run any of the plot scripts `python plot_*.py`.
 
 # Delftblue
+We ran our experiments on DelftBlue, a high-performance computer from the TU Delft. The following provides details on the experiment set up.
 
 https://doc.dhpc.tudelft.nl/delftblue/
 
